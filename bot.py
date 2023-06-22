@@ -1,55 +1,59 @@
 import discord
-from discord.ext import commands
-
-import responses
+from discord import option
 from dotenv import load_dotenv
 import os
 
-
-async def send_message(message, user_message, is_private):
-    try:
-        response = responses.handle_response(user_message)
-        await message.author.send(response) if is_private else await message.channel.send(response)
-
-    except Exception as e:
-        print(e)
-
-
 def run_discord_bot():
     load_dotenv("secrets.env")
+    bot = discord.Bot()
 
-    TOKEN = os.getenv("DISCORD_TOKEN")
+    @bot.command(description="Send bot's latency.")
+    async def ping(ctx):
+        await ctx.respond(f"Pong! Latency is {bot.latency}")
 
-    intents = discord.Intents.default()
-    intents.message_content = True
-    bot = commands.Bot(command_prefix='!', intents = intents)
-
-    @bot.event
-    async def on_ready():
-        print(f'{bot.user} is now running!')
-
-    @bot.command(name='ping')
-    async def ping2(ctx, arg, arg2):
-        await ctx.send(f'pong {arg} {arg2}')
-
-    @bot.command(name='map')
+    @bot.command(name="map", brief="shows map", description="Shows the map of the community")
     async def showMap(ctx):
-        await ctx.send("Map: www.placeholderURL.com")
-        # TODO: ask Max or create a URL
+        await ctx.respond(f"You can view the map at: www.placeHolder.com")
+
+    @bot.command(name="addcity", description="Enter the city closest to where you live.")
+    @option("city",
+            description="Entry the city closest to you",
+    required=True,
+    default=''
+    )
+    @option("country",
+            description="Entry the country you live in",
+            required=True,
+            default=''
+            )
+    async def addcity(ctx, city: str, country: str):
+        await ctx.respond(f"Set location of {ctx.author} to {city}, {country}")
+
+    @bot.command(name="removecity", description="Delete your entry from the map")
+    @option("city",
+            description="Enter the ",
+            required=True,
+            default=''
+            )
+    @option("country",
+            description="Entry the country you live in",
+            required=True,
+            default=''
+            )
+    async def removecity(ctx, city: str, country: str):
+        await ctx.respond(f"Delete {ctx.author}'s entry for {city}, {country}")
 
     # sets the map URL for a given server
-    @bot.command(name='setMapURL')
-    async def setMapURL(ctx, mapURL):
-        await ctx.send(f"Set the map URL for this server to: {mapURL}")
-        # TODO insert GUILDID, URL into DB
-        # FIXME crashes if no argument supplied
+    @bot.command(name='seturl')
+    @option("mapurl",
+            description="Enter the URL where the map will appear",
+            required=True,
+            default=''
+            )
+    async def setmapurl(ctx, mapurl):
+        await ctx.send(f"Set the map URL for this server to: {mapurl}")
+            # TODO insert GUILDID, URL into DB
+            # FIXME crashes if no argument supplied
 
-    @bot.command(name='addCity')
-    async def addCity(ctx, city, country):
-        await ctx.send(f"Set location of {ctx.author.name} to {city}, {country}")
-
-    @bot.command(name='deleteCity')
-    async def deleteCity(ctx, city, country):
-        await ctx.send(f"Deleted {ctx.author.name} from {city}, {country}")
-
-    bot.run(TOKEN)
+    bot.run(os.getenv("DISCORD_TOKEN"))
+    print(f"{bot.user} is running")
