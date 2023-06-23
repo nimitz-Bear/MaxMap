@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 
 import databaseFunctions as db
+import Utils
 
 
 def run_discord_bot():
@@ -28,7 +29,11 @@ def run_discord_bot():
 
             return
 
-        db.insert_Location(city, country, "test")  # TODO: figure out how to get a mapboxRef
+        db.insert_Location(city, country, "test ref")  # TODO: figure out how to get a mapboxRef
+
+        # print(
+        Utils.get_locationID(city, country)
+              # )
         await ctx.respond(f"Set location of {ctx.author} to {city}, {country}")
 
     @bot.command(name="removecity", description="Delete your entry from the map")
@@ -44,14 +49,10 @@ def run_discord_bot():
 
     # sets the map URL for a given server
     @bot.command(name='seturl')
-    @option("mapurl",
-            description="Enter the URL where the map will appear",
-            required=True,
-            default=''
-            )
+    @option("mapurl", description="Enter the URL where the map will appear", required=True)
     async def setmapurl(ctx, mapurl):
         await ctx.send(f"Set the map URL for this server to: {mapurl}")
-        # TODO insert GUILDID, URL into DB
+        # TODO insert guildID, URL into DB
         # FIXME crashes if no argument supplied
 
     bot.run(os.getenv("DISCORD_TOKEN"))
