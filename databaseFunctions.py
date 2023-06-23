@@ -23,7 +23,7 @@ def make_DB_Connection():
     mycursor = cnx.cursor()
 
     mycursor.execute("CREATE TABLE if not exists Locations (locationID int PRIMARY KEY AUTO_INCREMENT, city varchar(255), country varchar(255), lat DOUBLE, lng DOUBLE,  mapboxref varchar(255), count int );")
-    mycursor.execute("CREATE TABLE if not exists Users (discordID int PRIMARY KEY AUTO_INCREMENT, discordUserId int, locationID int, FOREIGN KEY (locationID) REFERENCES Locations(locationID) );")
+    mycursor.execute("CREATE TABLE if not exists Users (discordID int PRIMARY KEY AUTO_INCREMENT, discordUserId varchar(255), locationID int, FOREIGN KEY (locationID) REFERENCES Locations(locationID) );")
     mycursor.execute("SHOW tables;")
     print(mycursor.fetchall())
     return cnx
@@ -70,16 +70,25 @@ def get_Count_At_Location(locationID):
 
 def insert_User_Info(discordUserID, locationID):
     database = make_DB_Connection()
-    cursor = database.cursor
+    cursor = database.cursor()
 
-    try:
-        cursor.execute(f"INSERT INTO USERS (discordUserID, locationID) VALUES ({discordUserID}, {locationID});")
-        database.commit()
-        return True
-    except Exception as e:
-        # TODO: can probably use error codes instead
-        print(e)
-        return False
+    # try:
+    print(discordUserID)
+    print(locationID)
+    sql = "INSERT INTO Users (discordUserId, locationID) VALUES (%s, %s);"
+    print(sql)
+
+    val = (f"{discordUserID}", f"{locationID}")
+    cursor.execute(sql, val)
+
+    # cursor.execute(f"INSERT INTO Users (discordUserId, locationID) VALUES (${discordUserID}, ${locationID});")
+    database.commit()
+    #FIXME: have a single database.commit(), when all the queries sucess
+        # return True
+    # except Exception as e:
+    #     # TODO: can probably use error codes instead
+    #     print(e)
+    #     return False
 
 # returns locationID based on city, country using the Locations table
 

@@ -9,11 +9,12 @@ def get_locationID(city: str, country: str):
     cursor = database.cursor()
 
     cursor.execute(f"SELECT locationID FROM Locations WHERE Country='{country}' AND City='{city}';")
-    print(cursor.fetchall())
+    # print(f"test: {cursor.fetchall()}")
     output = cursor.fetchall()
 
-    if len(output) == 0 or output == None:
+    if len(output) == 0 or output is None:
         return None
 
     # only return the first value you find, however, location shouldn't have duplicates
-    return cursor.fetchall()[0]
+    print(f"test: {output[0]}")
+    return output[0][0]

@@ -30,10 +30,9 @@ def run_discord_bot():
             return
 
         db.insert_Location(city, country, "test ref")  # TODO: figure out how to get a mapboxRef
+        # Utils.get_locationID(city, country)
+        db.insert_User_Info(ctx.author.id, Utils.get_locationID(city, country))
 
-        # print(
-        Utils.get_locationID(city, country)
-              # )
         await ctx.respond(f"Set location of {ctx.author} to {city}, {country}")
 
     @bot.command(name="removecity", description="Delete your entry from the map")
