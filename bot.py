@@ -1,6 +1,5 @@
 import discord
 from discord import option
-from dotenv import load_dotenv
 import os
 
 import databaseFunctions as db
@@ -8,12 +7,7 @@ import Utils
 
 
 def run_discord_bot():
-    load_dotenv("secrets.env")
     bot = discord.Bot()
-
-    @bot.command(description="Send bot's latency.")
-    async def ping(ctx):
-        await ctx.respond(f"Pong! Latency is {bot.latency}")
 
     @bot.command(name="map", brief="shows map", description="Shows the map of the community")
     async def showMap(ctx):
@@ -26,8 +20,9 @@ def run_discord_bot():
         if city is None or country is None:
             await ctx.respond(
                 f"Missing arguments. Correct usage is `/addcity city country`, for example /addcity Nottingham UK ")
-
             return
+
+        # TODO: do some kind of check if the city already exists
 
         db.insert_Location(city, country, "test ref")  # TODO: figure out how to get a mapboxRef
         # Utils.get_locationID(city, country)
@@ -55,4 +50,4 @@ def run_discord_bot():
         # FIXME crashes if no argument supplied
 
     bot.run(os.getenv("DISCORD_TOKEN"))
-    print(f"{bot.user} is running")
+

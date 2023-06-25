@@ -18,14 +18,13 @@ def make_DB_Connection():
             print(err)
         return None
     else:
-        print("SQL DB connection should be working")
+        # print("SQL DB connection should be working")
+        pass
 
     mycursor = cnx.cursor()
 
     mycursor.execute("CREATE TABLE if not exists Locations (locationID int PRIMARY KEY AUTO_INCREMENT, city varchar(255), country varchar(255), lat DOUBLE, lng DOUBLE,  mapboxref varchar(255), count int );")
     mycursor.execute("CREATE TABLE if not exists Users (discordID int PRIMARY KEY AUTO_INCREMENT, discordUserId varchar(255), locationID int, FOREIGN KEY (locationID) REFERENCES Locations(locationID) );")
-    mycursor.execute("SHOW tables;")
-    print(mycursor.fetchall())
     return cnx
 
 
@@ -83,12 +82,11 @@ def insert_User_Info(discordUserID, locationID):
 
     # cursor.execute(f"INSERT INTO Users (discordUserId, locationID) VALUES (${discordUserID}, ${locationID});")
     database.commit()
-    #FIXME: have a single database.commit(), when all the queries sucess
+    #FIXME: have a single database.commit(), when all the queries succeed
+    # otherwise database might crash or become out of sync
+
         # return True
     # except Exception as e:
     #     # TODO: can probably use error codes instead
     #     print(e)
     #     return False
-
-# returns locationID based on city, country using the Locations table
-
