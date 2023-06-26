@@ -25,11 +25,14 @@ def addFeature(lat: float, lng: float, discordUsername):
         "type": "Feature",
         "properties": {
             "count": "1",
-            "username": f"{discordUsername}",
-            "DateAdded": f"{datetime.datetime}"
+            # "username": f"{discordUsername}",
+            "DateAdded": f"{str(datetime.datetime.now())}",
+            "discordUsers": [
+                f"{discordUsername}",
+            ]
         },
         "geometry": {
-            "coordinates": [lat, lng],
+            "coordinates": [lng, lat],
             "type": "Point"
         }
     }
@@ -90,12 +93,12 @@ def findFeatureID(lat: float, lng: float):
 load_dotenv("secrets.env")
 
 
-_, featureID, _ = addFeature(37.251639, -115.807558, "nimitz#0")
-print("===== before deletion:")
-listFeatures()
-deleteFeature(featureID)
-print("===== after deleting:")
-listFeatures()
+_, featureID, _ = addFeature(-20.556203, 139.161513, "nimitz#0")
+# print("===== before deletion:")
+# listFeatures()
+# deleteFeature(featureID)
+# print("===== after deleting:")
+# listFeatures()
 
 
 

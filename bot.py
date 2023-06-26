@@ -1,6 +1,9 @@
+import asyncio
+
 import discord
 from discord import option
 import os
+import mapbox
 
 import databaseFunctions as db
 import Utils
@@ -24,11 +27,14 @@ def run_discord_bot():
 
         # TODO: do some kind of check if the city already exists
 
-        db.insert_Location(city, country, "test ref")  # TODO: figure out how to get a mapboxRef
-        # Utils.get_locationID(city, country)
-        db.insert_User_Info(ctx.author.id, Utils.get_locationID(city, country))
+        # db.insert_Location(city, country, "test ref")  # TODO: figure out how to get a mapboxRef
+        # # Utils.get_locationID(city, country)
+        # db.insert_User_Info(ctx.author.id, Utils.get_locationID(city, country))
 
-        await ctx.respond(f"Set location of {ctx.author} to {city}, {country}")
+        lat, lng = Utils.get_lat_lng_from_city(city, country)
+        await ctx.defer()
+        mapbox.addFeature(0.0, 0.0, ctx.author.name)
+        await ctx.followup.send(f"Set location of {ctx.author} to {city}, {country}")
 
     @bot.command(name="removecity", description="Delete your entry from the map")
     @option("city", description="Enter the ", required=True)
@@ -50,4 +56,3 @@ def run_discord_bot():
         # FIXME crashes if no argument supplied
 
     bot.run(os.getenv("DISCORD_TOKEN"))
-
