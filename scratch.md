@@ -23,3 +23,5 @@ This setup process is intended for future iterations of the discord server in th
 Setting up Datasets and their Features: https://docs.mapbox.com/api/maps/datasets/
 
 Pycord (slash commands): https://guide.pycord.dev/interactions/application-commands/slash-commands
+
+PositionStack (place -> coordinates): https://positionstack.com/documentation

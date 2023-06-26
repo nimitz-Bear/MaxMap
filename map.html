@@ -11,7 +11,7 @@
 			body { margin: 0; padding: 0; }
 			#map { position: absolute; top: 0; bottom: 0; width: 100%; }
 .marker {
-  width:0; 
+  width:0;
   height:0;
 }
 .marker span {
@@ -63,26 +63,23 @@ font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
 	</head>
 <body>
 <div id="map"></div>
- 
+
 <script type="application/javascript">
 	mapboxgl.accessToken = MAPBOX_TOKEN;
 	const map = new mapboxgl.Map({
 		container: 'map',
 		style: 'mapbox://styles/mapbox/streets-v11',
 		center: [-0.118092, 51.509865],
-		zoom: 4 
+		zoom: 4
 	});
 	mapboxgl.clearStorage();
 	var xhttp = new XMLHttpRequest();
-
-	//TODO: seems to just be mapbox token?
-	var pkId = 'pk.eyJ1Ijoiam96ZWYtNyIsImEiOiJja3NueXU0YngwaTVxMnhvNmV5NHdpMjMxIn0.9f-rE6J2kHbeONG25YJZfA'
-
-	var dsId = 'cl47pnzki00xs28nz3zpk6q23'
-	var url = 'https://api.mapbox.com/datasets/v1/jozef-7/' + dsId + '/features?access_token=' + pkId 
+	var pkId = 'pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw'
+	var dsId = 'clj9x8dtj2vvx2hobacf6w3v3'
+	var url = 'https://api.mapbox.com/datasets/v1/nimitz-/' + dsId + '/features?access_token=' + pkId
 	console.log(url)
 	xhttp.open("GET", url, true);
-	xhttp.send(); 
+	xhttp.send();
 
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
@@ -153,7 +150,7 @@ font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
 	  }
 
 </script>
- 
+
 </body>
 </html>
 

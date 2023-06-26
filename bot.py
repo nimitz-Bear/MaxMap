@@ -26,14 +26,13 @@ def run_discord_bot():
             return
 
         # TODO: do some kind of check if the city already exists
-
-        # db.insert_Location(city, country, "test ref")  # TODO: figure out how to get a mapboxRef
+        # db.insert_Location(city, country, "test ref")
         # # Utils.get_locationID(city, country)
         # db.insert_User_Info(ctx.author.id, Utils.get_locationID(city, country))
 
-        lat, lng = Utils.get_lat_lng_from_city(city, country)
+        _, lat, lng = Utils.get_lat_lng_from_city(city, country)
         await ctx.defer()
-        mapbox.addFeature(0.0, 0.0, ctx.author.name)
+        mapbox.addFeature(lat, lng, ctx.author.name)
         await ctx.followup.send(f"Set location of {ctx.author} to {city}, {country}")
 
     @bot.command(name="removecity", description="Delete your entry from the map")
@@ -45,7 +44,7 @@ def run_discord_bot():
                 "Missing arguments. Correct usage is `/removecity city country`, for example /removecity Nottingham UK")
             return
 
-        await ctx.respond(f"Delete {ctx.author}'s entry for {city}, {country}")
+        await ctx.respond(f"Deleted {ctx.author}'s entry for {city}, {country}")
 
     # sets the map URL for a given server
     @bot.command(name='seturl')
