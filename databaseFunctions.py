@@ -20,7 +20,8 @@ def makeDBConnection():
 
     mycursor = cnx.cursor()
 
-    mycursor.execute("CREATE TABLE if not exists Locations (featureID varchar(255), city varchar(255), country varchar(255), lat double, lng double);")
+    mycursor.execute(
+        "CREATE TABLE if not exists Locations (featureID varchar(255), city varchar(255), country varchar(255), lat double, lng double);")
     return cnx
 
 
@@ -42,12 +43,11 @@ def insertLocation(featureID: str, city: str, country: str, lat: float, lng: flo
 
 
 def deleteLocation(city: str, country: str):
-    # first, find the location to delete
     database = makeDBConnection()
     cursor = database.cursor()
 
     try:
-        sql = f"DELETE FROM Locations WHERE city = {city} AND country = {country};"
+        sql = f"DELETE FROM Locations WHERE city = '{city}' AND country = '{country}';"
         cursor.execute(sql)
         database.commit()
         return True
@@ -56,3 +56,27 @@ def deleteLocation(city: str, country: str):
         return False
 
 
+# gets featureID based on city, country. Returns true if 0 or more requests found
+# returns false if execution fails
+def getFeatureID(city: str, country: str):
+    database = makeDBConnection()
+    cursor = database.cursor()
+
+    try:
+        sql = f"SELECT featureID FROM Locations WHERE city='{city}' AND country='{country}';"
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        print(results)
+
+        if len(results) == 0 or results is None:
+            print("No results found")
+            return True, ""
+
+        return True, results[0][0]
+    except Exception as e:
+        print(e)
+        return False, ""
+
+
+# _, result = getFeatureID("Dallas", "USA")
+# print(result)

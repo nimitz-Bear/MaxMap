@@ -25,12 +25,14 @@ def run_discord_bot():
                 f"Missing arguments. Correct usage is `/addcity city country`, for example /addcity Nottingham UK ")
             return
 
-        await ctx.defer()
+        await ctx.defer()  # wait to send the message, since discord automatically times out after a few ms
 
         # TODO: do some kind of check if the city already exists
         _, lat, lng = Utils.get_lat_lng_from_city(city, country)
-        sucess, featureID, response = mapbox.addFeature(lat, lng, ctx.author.name)
-        db.insertLocation(featureID=featureID,city=city, country=country,lng=lng, lat=lat)
+
+        # FIXME: can de-synchronize DB and mapbox if one of the two below fails, and the other succeeds
+        _, featureID, _ = mapbox.addFeature(lat, lng, ctx.author.name)
+        db.insertLocation(featureID=featureID, city=city, country=country, lng=lng, lat=lat)
         await ctx.followup.send(f"Set location of {ctx.author} to {city}, {country}")
 
     @bot.command(name="removecity", description="Delete your entry from the map")
@@ -42,7 +44,13 @@ def run_discord_bot():
                 "Missing arguments. Correct usage is `/removecity city country`, for example /removecity Nottingham UK")
             return
 
-        await ctx.respond(f"Deleted {ctx.author}'s entry for {city}, {country}")
+        await ctx.defer()  # wait to send the message, since discord automatically times out after a few ms
+        # FIXME: can de-synchronize DB and mapbox if one of the two below fails, and the other succeeds
+        print()
+        _, featureID = db.getFeatureID(city, country)
+        mapbox.deleteFeature(featureID)
+        db.deleteLocation(city, country)
+        await ctx.followup.send(f"Deleted {ctx.author}'s entry for {city}, {country}")
 
     # sets the map URL for a given server
     @bot.command(name='seturl')
