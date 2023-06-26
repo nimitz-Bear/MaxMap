@@ -14,7 +14,7 @@ def get_lat_lng_from_city(city: str, country: str):
     data = response.json()
     print(f"input city: {city}, {country} is at {data['data'][0]['latitude']}, {data['data'][0]['longitude']} ")
     if data['data'] == []:
-        return False, 0, 0
+        return False, 0.0, 0.0
     else:
         return True, data['data'][0]["latitude"], data['data'][0]["longitude"]
 
@@ -23,7 +23,7 @@ def get_lat_lng_from_city(city: str, country: str):
 # returns none, if city, country is not present in DB yet
 # NOTE: only returns the first
 def get_locationID(city: str, country: str):
-    database = db.make_DB_Connection()
+    database = db.makeDBConnection()
     cursor = database.cursor()
 
     cursor.execute(f"SELECT locationID FROM Locations WHERE Country='{country}' AND City='{city}';")
@@ -38,5 +38,5 @@ def get_locationID(city: str, country: str):
     return output[0][0]
 
 
-load_dotenv("secrets.env")
-get_lat_lng_from_city("manila", "Philippines")
+# load_dotenv("secrets.env")
+# get_lat_lng_from_city("manila", "Philippines")

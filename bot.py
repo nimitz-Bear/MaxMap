@@ -25,14 +25,12 @@ def run_discord_bot():
                 f"Missing arguments. Correct usage is `/addcity city country`, for example /addcity Nottingham UK ")
             return
 
-        # TODO: do some kind of check if the city already exists
-        # db.insert_Location(city, country, "test ref")
-        # # Utils.get_locationID(city, country)
-        # db.insert_User_Info(ctx.author.id, Utils.get_locationID(city, country))
-
-        _, lat, lng = Utils.get_lat_lng_from_city(city, country)
         await ctx.defer()
-        mapbox.addFeature(lat, lng, ctx.author.name)
+
+        # TODO: do some kind of check if the city already exists
+        _, lat, lng = Utils.get_lat_lng_from_city(city, country)
+        sucess, featureID, response = mapbox.addFeature(lat, lng, ctx.author.name)
+        db.insertLocation(featureID=featureID,city=city, country=country,lng=lng, lat=lat)
         await ctx.followup.send(f"Set location of {ctx.author} to {city}, {country}")
 
     @bot.command(name="removecity", description="Delete your entry from the map")

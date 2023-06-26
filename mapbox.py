@@ -14,7 +14,7 @@ def addFeature(lat: float, lng: float, discordUsername):
     if not isinstance(lat, float) or not isinstance(lng, float):
         # TODO: may want to throw an error here, because this is very hard to see and solve
         print(f"Error while performing addFeature: lat or long values are not floats! \n {lat}, {lng}")
-        return False, ""
+        return False, "", ""
 
     feature_id = str(uuid.uuid4())
     url = \
@@ -81,19 +81,29 @@ def listFeatures():
         f"https://api.mapbox.com/datasets/v1/nimitz-/{os.getenv('DATASET_ID')}/features?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
     r = requests.get(url)
     print(r.json())
+    return r.json()
 
 
 # get a feature's featureID
-def findFeatureID(lat: float, lng: float):
+def findFeatureID(lat, lng):
+    data = listFeatures()
 
-    pass
+    for item in data["features"]:
+        print(item["id"])
+        coords = item['geometry']['coordinates']
+        print(f"{item['geometry']['coordinates']}")
+        # print("a " + str(coords[0]))
+        # print("b " + str(coords[1]))
+        print(item["properties"]["DateAdded"])
+
+
+        # print(f"{item['geometry']['coordinates'][1]}")
 
 
 # FIXME: remove this
 load_dotenv("secrets.env")
 
-
-_, featureID, _ = addFeature(-20.556203, 139.161513, "nimitz#0")
+# _, featureID, _ = addFeature(-20.556203, 139.161513, "nimitz#0")
 # print("===== before deletion:")
 # listFeatures()
 # deleteFeature(featureID)
