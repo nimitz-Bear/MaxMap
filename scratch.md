@@ -25,3 +25,5 @@ Setting up Datasets and their Features: https://docs.mapbox.com/api/maps/dataset
 Pycord (slash commands): https://guide.pycord.dev/interactions/application-commands/slash-commands
 
 PositionStack (place -> coordinates): https://positionstack.com/documentation
+
+Basic example for hosting a webpage for the map: https://docs.mapbox.com/mapbox-gl-js/example/toggle-layers/

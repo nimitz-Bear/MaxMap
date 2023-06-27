@@ -1,15 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Show and hide layers</title>
-<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
-<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-<style>
-body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 100%; }
-</style>
+    <meta charset="utf-8">
+    <title>Show and hide layers</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
 <style>
@@ -60,33 +69,41 @@ body { margin: 0; padding: 0; }
 <div id="map"></div>
 
 <script>
-	mapboxgl.accessToken = 'pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
+    mapboxgl.accessToken = 'pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
     const map = new mapboxgl.Map({
         container: 'map',
         // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
         style: 'mapbox://styles/mapbox/streets-v12',
-        zoom: 15,
-        center: [-71.97722138410576, -13.517379300798098]
+        zoom: 3,
+        center: [120.9842, 14.5995]
     });
 
     // Wait until the map has finished loading.
     map.on('load', () => {
-        // Add a custom vector tileset source. This tileset contains
-        // point features representing museums. Each feature contains
-        // three properties. For example:
-        // {
-        //     alt_name: "Museo Arqueologico",
-        //     name: "Museo Inka",
-        //     tourism: "museum"
-        // }
-        map.addSource('museums', {
-            type: 'vector',
-            url: 'mapbox://mapbox.2opop9hr'
+        //TODO make request from mapbox to get all the features
+
+        console.log(getFeatures());
+
+        map.addSource('locations', {
+            type: 'geojson',
+            data: {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [120.9842, 14.5995]
+                        }
+                    }
+                ]
+            }
         });
+
         map.addLayer({
-            'id': 'museums',
+            'id': 'locations',
             'type': 'circle',
-            'source': 'museums',
+            'source': 'locations',
             'layout': {
                 // Make the layer visible by default.
                 'visibility': 'visible'
@@ -95,87 +112,30 @@ body { margin: 0; padding: 0; }
                 'circle-radius': 8,
                 'circle-color': 'rgba(55,148,179,1)'
             },
-            'source-layer': 'museum-cusco'
         });
 
-        // Add the Mapbox Terrain v2 vector tileset. Read more about
-        // the structure of data in this tileset in the documentation:
-        // https://docs.mapbox.com/vector-tiles/reference/mapbox-terrain-v2/
-        map.addSource('contours', {
-            type: 'vector',
-            url: 'mapbox://mapbox.mapbox-terrain-v2'
-        });
-        map.addLayer({
-            'id': 'contours',
-            'type': 'line',
-            'source': 'contours',
-            'source-layer': 'contour',
-            'layout': {
-                // Make the layer visible by default.
-                'visibility': 'visible',
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            'paint': {
-                'line-color': '#877b59',
-                'line-width': 1
-            }
-        });
     });
 
-    // After the last frame rendered before the map enters an "idle" state.
-    map.on('idle', () => {
-        // If these two layers were not added to the map, abort
-        if (!map.getLayer('contours') || !map.getLayer('museums')) {
-            return;
-        }
+    async function getFeatures() {
+        try {
+            const Http = new XMLHttpRequest();
+            const url = 'https://api.mapbox.com/datasets/v1/nimitz-/clj9x8dtj2vvx2hobacf6w3v3/features?access_token=pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
+            Http.open("GET", url);
+            Http.send();
 
-        // Enumerate ids of the layers.
-        const toggleableLayerIds = ['contours', 'museums'];
-
-        // Set up the corresponding toggle button for each layer.
-        for (const id of toggleableLayerIds) {
-            // Skip layers that already have a button set up.
-            if (document.getElementById(id)) {
-                continue;
-            }
-
-            // Create a link.
-            const link = document.createElement('a');
-            link.id = id;
-            link.href = '#';
-            link.textContent = id;
-            link.className = 'active';
-
-            // Show or hide layer when the toggle is clicked.
-            link.onclick = function (e) {
-                const clickedLayer = this.textContent;
-                e.preventDefault();
-                e.stopPropagation();
-
-                const visibility = map.getLayoutProperty(
-                    clickedLayer,
-                    'visibility'
-                );
-
-                // Toggle layer visibility by changing the layout object's visibility property.
-                if (visibility === 'visible') {
-                    map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-                    this.className = '';
-                } else {
-                    this.className = 'active';
-                    map.setLayoutProperty(
-                        clickedLayer,
-                        'visibility',
-                        'visible'
-                    );
+            Http.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(Http.responseText);
                 }
-            };
+            }
 
-            const layers = document.getElementById('menu');
-            layers.appendChild(link);
+            return Http.responseText;
+        } catch (err) {
+            // error loading the app
+            return "";
         }
-    });
+
+    }
 </script>
 
 </body>
