@@ -1,158 +1,182 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>UoN CS Undergraduate Cities</title>
-		<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-		<link href="https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.css" rel="stylesheet">
-		<script src="https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.js"></script>
-		<script src="constants.js"></script>
-		<style>
-			body { margin: 0; padding: 0; }
-			#map { position: absolute; top: 0; bottom: 0; width: 100%; }
-.marker {
-  width:0;
-  height:0;
-}
-.marker span {
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  box-sizing:border-box;
-  color:#fff;
-  border:solid 2px;
-  border-radius: 0 70% 70%;
-  box-shadow:0 0 2px #000;
-  cursor: pointer;
-  transform-origin:0 0;
-}
-.marker1  span {
-  width: 20px;
-  height: 20px;
-  background: #009bbd;
-  z-index: -1000;
-}
-.marker2  span {
-  width: 25px;
-  height: 25px;
-  background: #005597;
-  z-index: 10;
-}
-.marker3  span {
-  width: 30px;
-  height: 30px;
-  background: #18194f;
-  z-index: 30000;
-}
-
-.mapboxgl-popup {
-max-width: 200px;
-font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-}
-
-.mapboxgl-popup-content{
-	height: auto;
-	width: auto;
-	max-height: 200px;
-	padding-top: 20px;
-	overflow-y: scroll;
-}
-
-
-		</style>
-	</head>
+<head>
+<meta charset="utf-8">
+<title>Show and hide layers</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
 <body>
+<style>
+    #menu {
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 10px;
+        border-radius: 3px;
+        width: 120px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    #menu a {
+        font-size: 13px;
+        color: #404040;
+        display: block;
+        margin: 0;
+        padding: 0;
+        padding: 10px;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+        text-align: center;
+    }
+
+    #menu a:last-child {
+        border: none;
+    }
+
+    #menu a:hover {
+        background-color: #f8f8f8;
+        color: #404040;
+    }
+
+    #menu a.active {
+        background-color: #3887be;
+        color: #ffffff;
+    }
+
+    #menu a.active:hover {
+        background: #3074a4;
+    }
+</style>
+
+<nav id="menu"></nav>
 <div id="map"></div>
 
-<script type="application/javascript">
-	mapboxgl.accessToken = MAPBOX_TOKEN;
-	const map = new mapboxgl.Map({
-		container: 'map',
-		style: 'mapbox://styles/mapbox/streets-v11',
-		center: [-0.118092, 51.509865],
-		zoom: 4
-	});
-	mapboxgl.clearStorage();
-	var xhttp = new XMLHttpRequest();
-	var pkId = 'pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw'
-	var dsId = 'clj9x8dtj2vvx2hobacf6w3v3'
-	var url = 'https://api.mapbox.com/datasets/v1/nimitz-/' + dsId + '/features?access_token=' + pkId
-	console.log(url)
-	xhttp.open("GET", url, true);
-	xhttp.send();
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
+    const map = new mapboxgl.Map({
+        container: 'map',
+        // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+        style: 'mapbox://styles/mapbox/streets-v12',
+        zoom: 15,
+        center: [-71.97722138410576, -13.517379300798098]
+    });
 
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			var resp = String(xhttp.responseText);
-			resp = JSON.parse(resp);
-			resp = resp.features;
-			console.log(resp);
-			//sorts them so that the biggest numbers get put on last (in front)
-			resp.sort(function(a,b) {
-				//deals with any undefineds - converts them to 1 for comparison
-				var tempa = a.properties.Count;
-				var tempb = b.properties.Count;
-				if (tempa == null) { tempa = 1 };
-				if (tempb == null) { tempb = 1 };
-				return tempa - tempb;
-			});
+    // Wait until the map has finished loading.
+    map.on('load', () => {
+        // Add a custom vector tileset source. This tileset contains
+        // point features representing museums. Each feature contains
+        // three properties. For example:
+        // {
+        //     alt_name: "Museo Arqueologico",
+        //     name: "Museo Inka",
+        //     tourism: "museum"
+        // }
+        map.addSource('museums', {
+            type: 'vector',
+            url: 'mapbox://mapbox.2opop9hr'
+        });
+        map.addLayer({
+            'id': 'museums',
+            'type': 'circle',
+            'source': 'museums',
+            'layout': {
+                // Make the layer visible by default.
+                'visibility': 'visible'
+            },
+            'paint': {
+                'circle-radius': 8,
+                'circle-color': 'rgba(55,148,179,1)'
+            },
+            'source-layer': 'museum-cusco'
+        });
 
-			//adds the markers
-			for(let i = 0; i < resp.length; i++){
-				console.log(resp[i].geometry.coordinates[0]+", "+resp[i].geometry.coordinates[1]);
-				latlng = {lng: resp[i].geometry.coordinates[0], lat: resp[i].geometry.coordinates[1]}
+        // Add the Mapbox Terrain v2 vector tileset. Read more about
+        // the structure of data in this tileset in the documentation:
+        // https://docs.mapbox.com/vector-tiles/reference/mapbox-terrain-v2/
+        map.addSource('contours', {
+            type: 'vector',
+            url: 'mapbox://mapbox.mapbox-terrain-v2'
+        });
+        map.addLayer({
+            'id': 'contours',
+            'type': 'line',
+            'source': 'contours',
+            'source-layer': 'contour',
+            'layout': {
+                // Make the layer visible by default.
+                'visibility': 'visible',
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': '#877b59',
+                'line-width': 1
+            }
+        });
+    });
 
-				var names = resp[i].properties.Name.split(",");
-				var list = document.createElement('p');
-				list.name = "name-list";
-				var string = "";
-				for(let j = 0; j < names.length; j++){
-					string = string + names[j] + "</br>";
-				}
+    // After the last frame rendered before the map enters an "idle" state.
+    map.on('idle', () => {
+        // If these two layers were not added to the map, abort
+        if (!map.getLayer('contours') || !map.getLayer('museums')) {
+            return;
+        }
 
-				const popup = new mapboxgl.Popup({ closeOnClick: true, className : "name-list" })
-				.setLngLat(latlng)
-				.setMaxWidth("400px")
-				.setHTML(string)
-				.addTo(map);
+        // Enumerate ids of the layers.
+        const toggleableLayerIds = ['contours', 'museums'];
 
-				list.innerHTML = string;
+        // Set up the corresponding toggle button for each layer.
+        for (const id of toggleableLayerIds) {
+            // Skip layers that already have a button set up.
+            if (document.getElementById(id)) {
+                continue;
+            }
 
-				var icon = document.createElement('div');
-				icon.classList.add('marker');
-				//sets a different marker size depending on number of people living there
-				var tempCount = resp[i].properties.Count;
-				if (tempCount <= 1) {
-					icon.classList.add('marker1');
-				} else if (tempCount < 5) {
-					icon.classList.add('marker2');
-				} else if (tempCount >= 5) {
-					icon.classList.add('marker3');
-				} else {
-					//basically if undefined, set to 1.
-					icon.classList.add('marker1');
-					tempCount = 1;
-				}
-				icon.innerHTML = "<span><b>"+tempCount+"</b></span>";
-				var marker = new mapboxgl.Marker(icon)
-				.setLngLat(latlng)
-				.addTo(map);
-				marker.setPopup(popup);
-				marker.togglePopup();
-			}
-		}
-	  };
+            // Create a link.
+            const link = document.createElement('a');
+            link.id = id;
+            link.href = '#';
+            link.textContent = id;
+            link.className = 'active';
 
-	  //get element and set overflow scroll to it
-	  var element = document.getElementById("mapboxgl-popup-content");
-	  if(element != null){
-	  	element.style.overflow = "scroll";
-	  }
+            // Show or hide layer when the toggle is clicked.
+            link.onclick = function (e) {
+                const clickedLayer = this.textContent;
+                e.preventDefault();
+                e.stopPropagation();
 
+                const visibility = map.getLayoutProperty(
+                    clickedLayer,
+                    'visibility'
+                );
+
+                // Toggle layer visibility by changing the layout object's visibility property.
+                if (visibility === 'visible') {
+                    map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                    this.className = '';
+                } else {
+                    this.className = 'active';
+                    map.setLayoutProperty(
+                        clickedLayer,
+                        'visibility',
+                        'visible'
+                    );
+                }
+            };
+
+            const layers = document.getElementById('menu');
+            layers.appendChild(link);
+        }
+    });
 </script>
 
 </body>
 </html>
-
-Copy
-© MapboxTermsPrivacySecurity

@@ -26,7 +26,7 @@ def run_discord_bot():
             return
 
         await ctx.defer()  # wait to send the message, since discord automatically times out after a few ms
-
+        # TODO: ensure the city is an actual city
         # TODO: do some kind of check if the city already exists
         _, lat, lng = Utils.get_lat_lng_from_city(city, country)
 
@@ -45,19 +45,19 @@ def run_discord_bot():
             return
 
         await ctx.defer()  # wait to send the message, since discord automatically times out after a few ms
+        # TODO: check if the city is already in the DB
         # FIXME: can de-synchronize DB and mapbox if one of the two below fails, and the other succeeds
-        print()
         _, featureID = db.getFeatureID(city, country)
         mapbox.deleteFeature(featureID)
         db.deleteLocation(city, country)
         await ctx.followup.send(f"Deleted {ctx.author}'s entry for {city}, {country}")
 
-    # sets the map URL for a given server
-    @bot.command(name='seturl')
-    @option("mapurl", description="Enter the URL where the map will appear", required=True)
-    async def setmapurl(ctx, mapurl):
-        await ctx.send(f"Set the map URL for this server to: {mapurl}")
-        # TODO insert guildID, URL into DB
-        # FIXME crashes if no argument supplied
+    # # sets the map URL for a given server
+    # @bot.command(name='seturl')
+    # @option("mapurl", description="Enter the URL where the map will appear", required=True)
+    # async def setmapurl(ctx, mapurl):
+    #     await ctx.send(f"Set the map URL for this server to: {mapurl}")
+    #     # TODO insert guildID, URL into DB
+    #     # FIXME crashes if no argument supplied
 
     bot.run(os.getenv("DISCORD_TOKEN"))
