@@ -85,30 +85,32 @@
         Http.open("GET", url);
         Http.send();
 
+
         Http.onreadystatechange = await function () {
             if (this.readyState == 4 && this.status == 200) {
                 var resp = String(Http.responseText);
                 resp = JSON.parse(resp);
                 console.log(resp);
 
-                 map.addSource('locations', {
-            type: 'geojson',
-            data: resp
-        });
+                // add the map json as a source
+                map.addSource('locations', {
+                    type: 'geojson',
+                    data: resp
+                });
 
-                 map.addLayer({
-            'id': 'locations',
-            'type': 'circle',
-            'source': 'locations',
-            'layout': {
-                // Make the layer visible by default.
-                'visibility': 'visible'
-            },
-            'paint': {
-                'circle-radius': 8,
-                'circle-color': 'rgba(55,148,179,1)'
-            },
-        });
+                map.addLayer({
+                    'id': 'locations',
+                    'type': 'circle',
+                    'source': 'locations',
+                    'layout': {
+                        // Make the layer visible by default.
+                        'visibility': 'visible'
+                    },
+                    'paint': {
+                        'circle-radius': 8,
+                        'circle-color': 'rgba(55,148,179,1)'
+                    },
+                });
             }
         }
 

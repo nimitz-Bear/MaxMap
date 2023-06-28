@@ -20,8 +20,11 @@ def makeDBConnection():
 
     mycursor = cnx.cursor()
 
+    # create the tables if they're not already in place
     mycursor.execute(
         "CREATE TABLE if not exists Locations (featureID varchar(255), city varchar(255), country varchar(255), lat double, lng double);")
+    # need a seperate discordID since a single discordUserId may have put multiple locations in
+    mycursor.execute("CREATE TABLE if not exists Users (discordID int AUTO_INCREMENT PRIMARY KEY, discordUserID varchar(255), featureID varchar(255));")
     return cnx
 
 
@@ -77,6 +80,3 @@ def getFeatureID(city: str, country: str):
         print(e)
         return False, ""
 
-
-# _, result = getFeatureID("Dallas", "USA")
-# print(result)

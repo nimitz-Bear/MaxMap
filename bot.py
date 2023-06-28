@@ -31,6 +31,7 @@ def run_discord_bot():
         _, lat, lng = Utils.get_lat_lng_from_city(city, country)
 
         # FIXME: can de-synchronize DB and mapbox if one of the two below fails, and the other succeeds
+        # add the new location feature to mapbox and to the DB
         _, featureID, _ = mapbox.addFeature(lat, lng, ctx.author.name)
         db.insertLocation(featureID=featureID, city=city, country=country, lng=lng, lat=lat)
         await ctx.followup.send(f"Set location of {ctx.author} to {city}, {country}")
@@ -51,13 +52,5 @@ def run_discord_bot():
         mapbox.deleteFeature(featureID)
         db.deleteLocation(city, country)
         await ctx.followup.send(f"Deleted {ctx.author}'s entry for {city}, {country}")
-
-    # # sets the map URL for a given server
-    # @bot.command(name='seturl')
-    # @option("mapurl", description="Enter the URL where the map will appear", required=True)
-    # async def setmapurl(ctx, mapurl):
-    #     await ctx.send(f"Set the map URL for this server to: {mapurl}")
-    #     # TODO insert guildID, URL into DB
-    #     # FIXME crashes if no argument supplied
 
     bot.run(os.getenv("DISCORD_TOKEN"))
