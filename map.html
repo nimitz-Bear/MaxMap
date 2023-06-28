@@ -73,34 +73,30 @@
     const map = new mapboxgl.Map({
         container: 'map',
         // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: 'mapbox://styles/nimitz-/clj6x4nea004b01pi98n3ci9l',
         zoom: 3,
         center: [120.9842, 14.5995]
     });
 
     // Wait until the map has finished loading.
-    map.on('load', () => {
-        //TODO make request from mapbox to get all the features
+    map.on('load', async () => {
+        const Http = new XMLHttpRequest();
+        const url = 'https://api.mapbox.com/datasets/v1/nimitz-/clj9x8dtj2vvx2hobacf6w3v3/features?access_token=pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
+        Http.open("GET", url);
+        Http.send();
 
-        console.log(getFeatures());
+        Http.onreadystatechange = await function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var resp = String(Http.responseText);
+                resp = JSON.parse(resp);
+                console.log(resp);
 
-        map.addSource('locations', {
+                 map.addSource('locations', {
             type: 'geojson',
-            data: {
-                'type': 'FeatureCollection',
-                'features': [
-                    {
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'Point',
-                            'coordinates': [120.9842, 14.5995]
-                        }
-                    }
-                ]
-            }
+            data: resp
         });
 
-        map.addLayer({
+                 map.addLayer({
             'id': 'locations',
             'type': 'circle',
             'source': 'locations',
@@ -113,6 +109,8 @@
                 'circle-color': 'rgba(55,148,179,1)'
             },
         });
+            }
+        }
 
     });
 
@@ -125,13 +123,14 @@
 
             Http.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
-                    console.log(Http.responseText);
+                    // console.log(Http.responseText);
+                    return String(Http.responseText);
                 }
             }
-
-            return Http.responseText;
         } catch (err) {
             // error loading the app
+            // console.log(err);
+            // console.log(Http.responseText)
             return "";
         }
 
