@@ -105,7 +105,6 @@ def getCountAtFeature(city: str, country: str):
             print(e)
 
 
-# called whenever a user uses addCity
 def insertUser(discordUserID, discordUsername, featureID):
     database = makeDBConnection()
     cursor = database.cursor()
@@ -121,7 +120,6 @@ def insertUser(discordUserID, discordUsername, featureID):
         return False
 
 
-# called whenever a user uses removeCity
 def deleteUser(discordUserID, featureID):
     database = makeDBConnection()
     cursor = database.cursor()

@@ -14,6 +14,7 @@ def run_discord_bot():
 
     @bot.command(name="map", brief="shows map", description="Shows the map of the community")
     async def showMap(ctx):
+        # print(ctx.guild.id)
         await ctx.respond(f"You can view the map at: www.placeHolder.com")
 
     @bot.command(name="addcity", description="Add the city closest to where you live to the map.")
@@ -35,7 +36,7 @@ def run_discord_bot():
 
             # FIXME: can de-synchronize DB and mapbox if one of the three below fails, and the other succeeds
             # add the new location feature to mapbox and to the Locations DB
-            _, featureID, _ = mapbox.addFeature(lat, lng, [ctx.author.name])
+            _, featureID, _ = mapbox.upsert_feature(lat, lng, [ctx.author.name])
             db.insertLocation(featureID=featureID, city=city, country=country, lng=lng, lat=lat)
 
             # finally, add user to Users DB
@@ -60,17 +61,16 @@ def run_discord_bot():
         await ctx.defer()  # wait to send the message, since discord automatically times out after a few ms
 
         # TODO: check if the city is already in the DB
-        # FIXME: can de-synchronize DB and mapbox if one of the two below fails, and the other succeeds
         _, featureID = db.getFeatureID(city, country)
-        mapbox.deleteFeature(featureID) # FIXME: deleteFeature seems to fail
-        db.deleteLocation(city, country)
+        await decrement_city(city, country, ctx.author.id, featureID)
+
         await ctx.followup.send(f"Deleted {ctx.author}'s entry for {city}, {country}")
 
     bot.run(os.getenv("DISCORD_TOKEN"))
 
 
 async def increment_city(city: str, country: str, ctx):
-    # TODO: do a check to ensure that the user hasn't already added themselves to this place
+    #TODO: do a check to ensure that the user hasn't already added themselves to this place
 
     # find featureID to update
     success, featureID = db.getFeatureID(city, country)
@@ -91,8 +91,25 @@ async def increment_city(city: str, country: str, ctx):
     _, lat, lng = Utils.get_lat_lng_from_city(city, country)
 
     # update mapbox
-    mapbox.addFeature(lat, lng, users, count, featureID)
+    mapbox.upsert_feature(lat, lng, users, count, featureID)
 
 
-async def decrement_city():
-    pass
+async def decrement_city(city: str, country: str, discordUserID: str, featureID: str):
+    # delete the user from the DB and decrement mapbox feature
+    db.deleteUser(discordUserID, featureID)
+    count = db.getCountAtFeature(city, country)
+
+    if count == 0:
+        # if there's no one else in a location, delete it from the DB and the mapbox
+        # FIXME: can de-synchronize DB and mapbox if one of the two below fails, and the other succeeds
+        mapbox.deleteFeature(featureID)
+        db.deleteLocation(city, country)
+    else:
+        # get list of users
+        _, users = db.get_users_at_location(featureID)
+        _, lat, lng = Utils.get_lat_lng_from_city(city, country)
+
+        # update the result in mapbox
+        mapbox.upsert_feature(lat, lng, users, count, featureID)
+
+

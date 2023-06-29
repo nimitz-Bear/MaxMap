@@ -8,11 +8,10 @@ import os
 from dotenv import load_dotenv
 
 
-# adds a feature (i.e. a location on a map)
+# insert/update a feature (i.e. a location on a map)
+# featureID and count must be provided to update a feature
 # returns True if it succeeds, else False
-def addFeature(lat: float, lng: float, discordUsername: list[str], count: int = 1, featureID: str = None):
-    print("adding/updating")
-    print(count)
+def upsert_feature(lat: float, lng: float, discordUsername: list[str], count: int = 1, featureID: str = None):
 
     # ensure lat, lng inputs are floats
     if not isinstance(lat, float) or not isinstance(lng, float):
