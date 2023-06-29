@@ -8,15 +8,23 @@ import os
 from dotenv import load_dotenv
 
 
-# adds a feature (i.e. a location on a map) with a default count of 1
-# returns True if it suceeds, else False
-def addFeature(lat: float, lng: float, discordUsername):
+# adds a feature (i.e. a location on a map)
+# returns True if it succeeds, else False
+def addFeature(lat: float, lng: float, discordUsername: list[str], count: int = 1, featureID: str = None):
+    print("adding/updating")
+    print(count)
+
+    # ensure lat, lng inputs are floats
     if not isinstance(lat, float) or not isinstance(lng, float):
         # TODO: may want to throw an error here, because this is very hard to see and solve
         print(f"Error while performing addFeature: lat or long values are not floats! \n {lat}, {lng}")
         return False, "", ""
 
-    feature_id = str(uuid.uuid4())
+    # create a unique id for the feature, unless updating
+    feature_id = str(uuid.uuid4()) if featureID is None else featureID
+
+    # mapbox lets you update/add a featureID with the same kind of request
+    # make an http request to add/update the mapbox feature with a given featureID
     url = \
         f"https://api.mapbox.com/datasets/v1/nimitz-/{os.getenv('DATASET_ID')}/features/{feature_id}?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
     headers = {"Content-Type": "application/json"}
@@ -24,8 +32,7 @@ def addFeature(lat: float, lng: float, discordUsername):
         "id": f"{feature_id}",
         "type": "Feature",
         "properties": {
-            "count": "1",
-            # "username": f"{discordUsername}",
+            "count": count,
             "DateAdded": f"{str(datetime.datetime.now())}",
             "discordUsers": [
                 f"{discordUsername}",
@@ -37,13 +44,11 @@ def addFeature(lat: float, lng: float, discordUsername):
         }
     }
 
-    # print(json.dumps(requestbody))
-
     response = requests.put(url=url, headers=headers, data=json.dumps(requestbody))
 
     print(response.text)
-
     response.close()
+
     if not response.ok:
         print(f"Error when deleting: [{response.status_code}] {response.text}")
         return False, feature_id, response.text
@@ -65,43 +70,16 @@ def deleteFeature(featureID: str):
     return True, response.text
 
 
-# remove a person from a feature (i.e. remove a person's association with a location on the map)
-# Note: this is just for a person. The location will persist in the database
-def deletePersonFromFeature():
-    # decrement the counter property
-    # then, remove the user from the list
-
-    pass
-
-
-# prints list of features in JSON format
+# returns list of features as JSON
 def listFeatures():
-    # TODO could move getting the DATASET_ID, Token out of the functions
     url = \
         f"https://api.mapbox.com/datasets/v1/nimitz-/{os.getenv('DATASET_ID')}/features?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
     r = requests.get(url)
     print(r.json())
     return r.json()
 
-
-# get a feature's featureID
-def findFeatureID(lat, lng):
-    data = listFeatures()
-
-    for item in data["features"]:
-        print(item["id"])
-        coords = item['geometry']['coordinates']
-        print(f"{item['geometry']['coordinates']}")
-        # print("a " + str(coords[0]))
-        # print("b " + str(coords[1]))
-        print(item["properties"]["DateAdded"])
-
-
-        # print(f"{item['geometry']['coordinates'][1]}")
-
-
 # FIXME: remove this
-load_dotenv("secrets.env")
+# load_dotenv("secrets.env")
 
 # _, featureID, _ = addFeature(-20.556203, 139.161513, "nimitz#0")
 # print("===== before deletion:")
