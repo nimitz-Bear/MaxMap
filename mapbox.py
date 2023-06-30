@@ -77,15 +77,4 @@ def listFeatures():
     print(r.json())
     return r.json()
 
-# FIXME: remove this
-# load_dotenv("secrets.env")
-
-# _, featureID, _ = addFeature(-20.556203, 139.161513, "nimitz#0")
-# print("===== before deletion:")
-# listFeatures()
-# deleteFeature(featureID)
-# print("===== after deleting:")
-# listFeatures()
-
-
 

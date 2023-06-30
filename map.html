@@ -72,9 +72,11 @@
     mapboxgl.accessToken = 'pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
     const map = new mapboxgl.Map({
         container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
         // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-        style: 'mapbox://styles/nimitz-/clj6x4nea004b01pi98n3ci9l',
-        zoom: 3,
+        // style: 'mapbox://styles/nimitz-/clj6x4nea004b01pi98n3ci9l',
+
+        zoom: 6,
         center: [120.9842, 14.5995]
     });
 
@@ -95,48 +97,78 @@
                 // add the map json as a source
                 map.addSource('locations', {
                     type: 'geojson',
-                    data: resp
+                    data: resp,
+                    cluster: true,
+                    clusterMaxZoom: 14, // Max zoom to cluster points on
+                    clusterRadius: 100, // Radius of each cluster when clustering points (defaults to 50)
+                    // clusterProperties: {
+                    //     // Specify the cluster property field here
+                    //     property: ['count']
+                    // }
                 });
 
+                // adjusts the size and color of circles depending on number of points
+                // so, a cluster with >= 20 points would be 40px, red
                 map.addLayer({
-                    'id': 'locations',
-                    'type': 'circle',
-                    'source': 'locations',
-                    'layout': {
-                        // Make the layer visible by default.
-                        'visibility': 'visible'
-                    },
-                    'paint': {
-                        'circle-radius': 8,
-                        'circle-color': 'rgba(55,148,179,1)'
-                    },
+                    id: 'clusters',
+                    type: 'circle',
+                    source: 'locations',
+                    filter: ['has', 'point_count'],
+                    paint: {
+                        // "circle-color": "#f1f075",
+                        'circle-color': [
+                            'step',
+                            ['get', 'point_count'],
+                            '#51bbd6', // default color
+                            5,
+                            '#f1f075',
+                            10,
+                            '#f28cb1'
+                        ],
+                        // "circle-radius": 40
+                        'circle-radius': [
+                            'step',
+                            ['get', 'point_count'],
+                            20, // default for clusters
+                            10, 30, // >= 10 points then 30 px
+                            20, 40
+                        ]
+                    }
+                });
+
+                // gets the number inside a cluster
+                map.addLayer({
+                    id: 'cluster-count',
+                    type: 'symbol',
+                    source: 'locations',
+                    filter: ['has', 'point_count'],
+                    layout: {
+                        'text-field': ['get', 'point_count_abbreviated'],
+                        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+                        'text-size': 12
+                    }
+                });
+
+                // add unclustered points (lowest level)
+                map.addLayer({
+                    id: 'unclustered-point',
+                    type: 'circle',
+                    source: 'locations',
+                    // filter so that everything without a point_count (i.e.
+                    // not in a cluster) becomes an unclustered_point
+                    filter: ['!', ['has', 'point_count']],
+                    paint: {
+                        'circle-color': '#ADD8E6',
+                        'circle-radius': 4,
+                        'circle-stroke-width': 1,
+                        'circle-stroke-color': '#fff'
+                    }
                 });
             }
         }
 
     });
 
-    async function getFeatures() {
-        try {
-            const Http = new XMLHttpRequest();
-            const url = 'https://api.mapbox.com/datasets/v1/nimitz-/clj9x8dtj2vvx2hobacf6w3v3/features?access_token=pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
-            Http.open("GET", url);
-            Http.send();
-
-            Http.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    // console.log(Http.responseText);
-                    return String(Http.responseText);
-                }
-            }
-        } catch (err) {
-            // error loading the app
-            // console.log(err);
-            // console.log(Http.responseText)
-            return "";
-        }
-
-    }
 </script>
 
 </body>

@@ -151,15 +151,3 @@ def get_users_at_location(featureID: str):
     except Exception as e:
         print(e)
         return False, []
-
-# # FIXME: remove this before production
-# load_dotenv("secrets.env")
-# getCountAtFeature("Mumbai", "India")
-# _, list = get_users_at_location(getFeatureID("Mumbai", "India")[1])
-# print(list)
-
-# success, output = getFeatureID("lmao", "test")
-# print(success)
-# print(output)
-# deleteUser("223747505597317120", "3527be42-f9ee-437e-bcce-d6e586b29a80")
-# getCountAtFeature("Washington DC", "USA")

@@ -4,7 +4,7 @@ import databaseFunctions as db
 import os
 from dotenv import load_dotenv
 
-
+# TODO: change this to use mapbox, too
 # returns false as the first argument, if it can't find locations
 def get_lat_lng_from_city(city: str, country: str):
     url = "http://api.positionstack.com/v1/forward?" + "access_key=" + os.getenv("POSITIONSTACK_KEY") + \
