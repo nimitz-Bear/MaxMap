@@ -164,6 +164,32 @@
                         'circle-stroke-color': '#fff'
                     }
                 });
+
+                // When a click occurs on something
+                // in the unclustered points layer
+                map.on('click', 'unclustered-point', (e) => {
+                    const coordinates = e.features[0].geometry.coordinates.slice();
+
+                    // this refers to the count and discordUsers properties in the dataset geoJSON
+                    const count = e.features[0].properties['count'];
+                    const users = e.features[0].properties['discordUsers'];
+                    console.log(JSON.parse(users)[0]);
+
+                    // create a string of users seperated by <br>
+                    var arrayOfUsers = JSON.parse(users);
+                    var stringOfUsers = "";
+                    for (let i = 0; i < arrayOfUsers.length; i++) {
+                                  stringOfUsers += arrayOfUsers[i] + "<br>";
+                    }
+                    console.log(stringOfUsers)
+
+
+                    // create a pop up with the number and list of users for a given location
+                    // TODO: add the name of the location using reverse geocoding
+                    new mapboxgl.Popup().setLngLat(coordinates).setHTML(`Count: ${count} <br> ${stringOfUsers}`).addTo(map);
+
+                });
+
             }
         }
 

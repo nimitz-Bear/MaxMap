@@ -85,7 +85,7 @@ async def increment_city(city: str, country: str, ctx):
 
     # get updated user list and number of users at location
     count = db.getCountAtFeature(city, country)
-    users = db.get_users_at_location(featureID)
+    success, users = db.get_users_at_location(featureID)
 
     # get lat, lng for the city
     _, lat, lng = Utils.get_lat_lng_from_city(city, country)
@@ -111,5 +111,4 @@ async def decrement_city(city: str, country: str, discordUserID: str, featureID:
 
         # update the result in mapbox
         mapbox.upsert_feature(lat, lng, users, count, featureID)
-
 

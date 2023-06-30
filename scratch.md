@@ -27,3 +27,5 @@ Pycord (slash commands): https://guide.pycord.dev/interactions/application-comma
 PositionStack (place -> coordinates): https://positionstack.com/documentation
 
 Basic example for hosting a webpage for the map: https://docs.mapbox.com/mapbox-gl-js/example/toggle-layers/
+
+Clustering nearby points: https://docs.mapbox.com/mapbox-gl-js/example/cluster/
