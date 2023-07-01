@@ -19,6 +19,11 @@ This setup process is intended for future iterations of the discord server in th
 
 `Feature`s represent individual entries in a `Dataset` and can be 
 
+## Notes and Caveats
+
+In order to see changes in `index.html` appear in the webpage, need to cd into the `web/` director and run 
+`firebase deploy --only hosting` from command line
+
 ## Links used:
 Setting up Datasets and their Features: https://docs.mapbox.com/api/maps/datasets/
 
@@ -29,3 +34,7 @@ PositionStack (place -> coordinates): https://positionstack.com/documentation
 Basic example for hosting a webpage for the map: https://docs.mapbox.com/mapbox-gl-js/example/toggle-layers/
 
 Clustering nearby points: https://docs.mapbox.com/mapbox-gl-js/example/cluster/
+
+
+For firebase hosting: https://firebase.google.com/docs/hosting/quickstart
+
