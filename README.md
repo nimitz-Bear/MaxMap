@@ -41,7 +41,7 @@ This is ONLY if you wish to run the bot yourself, as a developer.
 3. Create a [Discord developer account](https://discord.com/developers/applications) and create a bot token and add it as `DISCORD_TOKEN=your_token` to `secrets.env`
 4. Create a [mapbox account](https://account.mapbox.com/) and get a private token (with read/write dataset enabled)
 5. Create a mapbox dataset 
-6. Install MySQL and create a Database with the name `Maxmap`
+6. Install MySQL and create a Database with the name `maxmap`
 7. Run `pip install -r requirements.txt` to install all the Python dependencies
 8. Create a [PositionStack](https://positionstack.com/documentation) API Key and add it to `secrets.env` as `POSITIONSTACK_KEY=Your_key`
 9. Run the bot from the main function in `main.py`

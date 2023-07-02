@@ -56,7 +56,7 @@ def upsert_feature(lat: float, lng: float, discordUsernames: list[str], count: i
 
 # delete a feature (i.e. a location on the map)
 # NOTE: this isn't just for one person. This location will cease to exist as part of the dataset
-def deleteFeature(featureID: str):
+def delete_feature(featureID: str):
     url = f"https://api.mapbox.com/datasets/v1/nimitz-/{os.getenv('DATASET_ID')}/features/{featureID}?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
     header = {"Content-Type": "application/json"}
     response = requests.delete(url, headers=header)
@@ -69,7 +69,7 @@ def deleteFeature(featureID: str):
 
 
 # returns list of features as JSON
-def listFeatures():
+def list_features():
     url = \
         f"https://api.mapbox.com/datasets/v1/nimitz-/{os.getenv('DATASET_ID')}/features?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
     r = requests.get(url)

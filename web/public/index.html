@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Show and hide layers</title>
+    <title>Maxmap</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
@@ -72,7 +72,7 @@
     mapboxgl.accessToken = 'pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
     const map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v11',
+        style: 'mapbox://styles/nimitz-/clj6x4nea004b01pi98n3ci9l',
         // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
         // style: 'mapbox://styles/nimitz-/clj6x4nea004b01pi98n3ci9l',
 
@@ -100,7 +100,7 @@
                     data: resp,
                     cluster: true,
                     clusterMaxZoom: 14, // Max zoom to cluster points on
-                    clusterRadius: 100, // Radius of each cluster when clustering points (defaults to 50)
+                    clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
                     // clusterProperties: {
                     //     // Specify the cluster property field here
                     //     property: ['count']
@@ -159,7 +159,7 @@
                     filter: ['!', ['has', 'point_count']],
                     paint: {
                         'circle-color': '#ADD8E6',
-                        'circle-radius': 4,
+                        'circle-radius': 10,
                         'circle-stroke-width': 1,
                         'circle-stroke-color': '#fff'
                     }

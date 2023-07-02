@@ -1,12 +1,13 @@
+import os
+
 import mysql.connector
 from mysql.connector import errorcode
-from dotenv import load_dotenv
 
 
 # returns None if connecting throws an error
-def makeDBConnection():
+def make_db_connection():
     try:
-        cnx = mysql.connector.connect(user="root", password="root",
+        cnx = mysql.connector.connect(user=os.getenv('DB_USERNAME'), password=os.getenv('DB_PASSWORD'),
                                       host="localhost",
                                       database="maxmap",
                                       use_pure=False)
@@ -28,12 +29,13 @@ def makeDBConnection():
     mycursor.execute(
         "CREATE TABLE if not exists Users (discordID int AUTO_INCREMENT PRIMARY KEY, discordUserID varchar(255), " +
         "discordUsername varchar(255), featureID varchar(255), FOREIGN KEY (featureID) REFERENCES Locations(featureID));")
+    mycursor.execute("CREATE TABLE if not exists Servers (guildID varchar(255) PRIMARY KEY, datasetID varchar(255));")
     return cnx
 
 
 # inserts a new location into the DB
-def insertLocation(featureID: str, city: str, country: str, lat: float, lng: float):
-    database = makeDBConnection()
+def insert_location(featureID: str, city: str, country: str, lat: float, lng: float):
+    database = make_db_connection()
 
     try:
         sql = f"INSERT INTO Locations (featureID, city, country, lat, lng) VALUES (%s, %s, %s, %s, %s);"
@@ -48,8 +50,8 @@ def insertLocation(featureID: str, city: str, country: str, lat: float, lng: flo
         return False
 
 
-def deleteLocation(city: str, country: str):
-    database = makeDBConnection()
+def delete_location(city: str, country: str):
+    database = make_db_connection()
     cursor = database.cursor()
 
     try:
@@ -64,8 +66,8 @@ def deleteLocation(city: str, country: str):
 
 # gets featureID based on city, country. Returns true if 1 or more entries found
 # returns false if execution fails or 0 results
-def getFeatureID(city: str, country: str):
-    database = makeDBConnection()
+def get_feature_id(city: str, country: str):
+    database = make_db_connection()
     cursor = database.cursor()
 
     try:
@@ -85,10 +87,10 @@ def getFeatureID(city: str, country: str):
 
 
 # returns the number of users at a given location, returns 0 if location doesn't yet exist in DB
-def getCountAtFeature(city: str, country: str):
+def get_count_at_feature(city: str, country: str):
     # get the feature ID
-    success, result = getFeatureID(city, country)
-    database = makeDBConnection()
+    success, result = get_feature_id(city, country)
+    database = make_db_connection()
     cursor = database.cursor()
 
     # return 0 if featureID cannot be found
@@ -105,8 +107,10 @@ def getCountAtFeature(city: str, country: str):
             print(e)
 
 
-def insertUser(discordUserID, discordUsername, featureID):
-    database = makeDBConnection()
+# add a user to the DB
+# NOTE: user may choose to have multiple entries
+def insert_user(discordUserID, discordUsername, featureID):
+    database = make_db_connection()
     cursor = database.cursor()
 
     try:
@@ -120,8 +124,8 @@ def insertUser(discordUserID, discordUsername, featureID):
         return False
 
 
-def deleteUser(discordUserID, featureID):
-    database = makeDBConnection()
+def delete_user(discordUserID, featureID):
+    database = make_db_connection()
     cursor = database.cursor()
 
     try:
@@ -138,7 +142,7 @@ def deleteUser(discordUserID, featureID):
 
 
 def get_users_at_location(featureID: str):
-    database = makeDBConnection()
+    database = make_db_connection()
     cursor = database.cursor()
 
     try:
@@ -151,3 +155,15 @@ def get_users_at_location(featureID: str):
     except Exception as e:
         print(e)
         return False, []
+
+
+def add_server(guildID: str, datasetID: str):
+    pass
+
+
+def delete_server(guildID: str):
+    pass
+
+
+def get_datasetID(guildID: str):
+    pass
