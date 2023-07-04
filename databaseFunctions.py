@@ -1,6 +1,7 @@
 import os
 
 import mysql.connector
+from dotenv import load_dotenv
 from mysql.connector import errorcode
 
 
@@ -24,38 +25,69 @@ def make_db_connection():
 
     # create the tables if they're not already in place
     mycursor.execute(
-        "CREATE TABLE if not exists Locations (featureID varchar(255), city varchar(255), country varchar(255), lat double, lng double,  PRIMARY KEY(featureID));")
+        "CREATE TABLE if not exists Locations (featureID varchar(255), city varchar(255), country varchar(255), lat double, lng double, guildID varchar(255), PRIMARY KEY(featureID));")
     # need a seperate discordID since a single discordUserId may have put multiple locations in
     mycursor.execute(
         "CREATE TABLE if not exists Users (discordID int AUTO_INCREMENT PRIMARY KEY, discordUserID varchar(255), " +
-        "discordUsername varchar(255), featureID varchar(255), FOREIGN KEY (featureID) REFERENCES Locations(featureID));")
+        "discordUsername varchar(255), featureID varchar(255), guildID varchar(255), FOREIGN KEY (featureID) REFERENCES Locations(featureID));")
     mycursor.execute("CREATE TABLE if not exists Servers (guildID varchar(255) PRIMARY KEY, datasetID varchar(255));")
     return cnx
 
 
-# inserts a new location into the DB
-def insert_location(featureID: str, city: str, country: str, lat: float, lng: float):
+# for inserting into the table
+# sql should be a string,
+# such as "INSERT INTO Locations (featureID, city, country, lat, lng) VALUES (%s, %s, %s, %s, %s);"
+# values should be a tuple, such as (hjfdgwy4713ul, Rome, Italy, 41.9028, 12.4964)
+def insert(sqlInsertQuery: str, values: tuple):
     database = make_db_connection()
+    cursor = database.cursor()
 
     try:
-        sql = f"INSERT INTO Locations (featureID, city, country, lat, lng) VALUES (%s, %s, %s, %s, %s);"
-
-        cursor = database.cursor()
-        cursor.execute(sql, (featureID, city, country, lat, lng))
+        cursor.execute(sqlInsertQuery, values)
         database.commit()
-        print(f"{featureID}, {city}, {country}, {lat}, {lng}")
         return True
     except Exception as e:
         print(e)
         return False
 
 
-def delete_location(city: str, country: str):
+# the argument is a string representing a DELETE FROM mysql command, such as
+# f"DELETE FROM Locations WHERE city = '{city}' AND country = '{country}';"
+def delete(sqlDeleteQuery: str):
+    database = make_db_connection()
+    cursor = database.cursor()
+
+    # TODO: get rid of try-catch?
+    try:
+        cursor.execute(sqlDeleteQuery)
+        database.commit()
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
+# inserts a new location into the DB
+def insert_location(featureID: str, city: str, country: str, lat: float, lng: float, guildID: str):
+    database = make_db_connection()
+
+    try:
+        sql = f"INSERT INTO Locations (featureID, city, country, lat, lng, guildID) VALUES (%s, %s, %s, %s, %s, %s);"
+        cursor = database.cursor()
+        cursor.execute(sql, (featureID, city, country, lat, lng, guildID))
+        database.commit()
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
+def delete_location(city: str, country: str, guildID: str):
     database = make_db_connection()
     cursor = database.cursor()
 
     try:
-        sql = f"DELETE FROM Locations WHERE city = '{city}' AND country = '{country}';"
+        sql = f"DELETE FROM Locations WHERE city = '{city}' AND country = '{country}' AND guildID = '{guildID}';"
         cursor.execute(sql)
         database.commit()
         return True
@@ -66,15 +98,15 @@ def delete_location(city: str, country: str):
 
 # gets featureID based on city, country. Returns true if 1 or more entries found
 # returns false if execution fails or 0 results
-def get_feature_id(city: str, country: str):
+def get_feature_id(city: str, country: str, guildID: str):
     database = make_db_connection()
     cursor = database.cursor()
 
     try:
-        sql = f"SELECT featureID FROM Locations WHERE city='{city}' AND country='{country}';"
+        sql = f"SELECT featureID FROM Locations WHERE city='{city}' AND country='{country}' AND guildID='{guildID}';"
         cursor.execute(sql)
         results = cursor.fetchall()
-        print(results)
+        # print(results)
 
         if len(results) == 0 or results is None:
             print("No results found")
@@ -86,10 +118,11 @@ def get_feature_id(city: str, country: str):
         return False, ""
 
 
-# returns the number of users at a given location, returns 0 if location doesn't yet exist in DB
-def get_count_at_feature(city: str, country: str):
+# returns the number of users at a given location, for one server
+# returns 0, if the location is empty or this server
+def server_location_count(city: str, country: str, guildID: str):
     # get the feature ID
-    success, result = get_feature_id(city, country)
+    success, result = get_feature_id(city, country, guildID)
     database = make_db_connection()
     cursor = database.cursor()
 
@@ -98,7 +131,8 @@ def get_count_at_feature(city: str, country: str):
         return 0
     else:
         try:
-            sql = f"SELECT COUNT(featureID) As UserCount From Users WHERE featureID = '{result}';"
+            # get the number of users at the same location, in the same server
+            sql = f"SELECT COUNT(featureID) As UserCount From Users WHERE featureID = '{result}' AND guildID='{guildID}';"
             cursor.execute(sql)
             results = cursor.fetchall()
             print(results[0][0])
@@ -109,13 +143,13 @@ def get_count_at_feature(city: str, country: str):
 
 # add a user to the DB
 # NOTE: user may choose to have multiple entries
-def insert_user(discordUserID, discordUsername, featureID):
+def insert_user(discordUserID: str, discordUsername: str, featureID: str, guildID: str):
     database = make_db_connection()
     cursor = database.cursor()
 
     try:
-        sql = "INSERT INTO Users (discordUserId, discordUsername, featureID) VALUES (%s, %s, %s);"
-        val = (f"{discordUserID}", f"{discordUsername}", f"{featureID}")
+        sql = "INSERT INTO Users (discordUserId, discordUsername, featureID, guildID) VALUES (%s, %s, %s, %s);"
+        val = (f"{discordUserID}", f"{discordUsername}", f"{featureID}", f"{guildID}")
         cursor.execute(sql, val)
         database.commit()
         return True
@@ -124,7 +158,7 @@ def insert_user(discordUserID, discordUsername, featureID):
         return False
 
 
-def delete_user(discordUserID, featureID):
+def delete_user(discordUserID: str, featureID: str, guildID: str):
     database = make_db_connection()
     cursor = database.cursor()
 
@@ -132,7 +166,7 @@ def delete_user(discordUserID, featureID):
         # a discordUserID may have multiple Locations (i.e. featureID's)
         # but a featureID can't have multiple of the same discordUserID (i.e. a user shouldn't
         # be registered in the same place twice)
-        sql = f"DELETE FROM Users WHERE discordUserID = '{discordUserID}' AND featureID = '{featureID}';"
+        sql = f"DELETE FROM Users WHERE discordUserID = '{discordUserID}' AND featureID = '{featureID}' AND guildID ='{guildID}';"
         cursor.execute(sql)
         database.commit()
         return True
@@ -141,7 +175,7 @@ def delete_user(discordUserID, featureID):
         return False
 
 
-def get_users_at_location(featureID: str):
+def get_user_list_at_feature(featureID: str):
     database = make_db_connection()
     cursor = database.cursor()
 
@@ -157,13 +191,65 @@ def get_users_at_location(featureID: str):
         return False, []
 
 
-def add_server(guildID: str, datasetID: str):
-    pass
+# store a server's associated dataset in the table
+def insert_server(guildID: str, datasetID: str):
+    database = make_db_connection()
+    cursor = database.cursor()
+
+    try:
+        sql = f"INSERT INTO Servers (guildID, datasetID) VALUES (%s, %s);"
+        val = (guildID, datasetID)
+        cursor.execute(sql, val)
+        database.commit()
+    except Exception as e:
+        print(e)
 
 
+# remove a server's dataset from the table
 def delete_server(guildID: str):
-    pass
+    database = make_db_connection()
+    cursor = database.cursor()
+
+    try:
+        sql = f"DELETE FROM Servers WHERE guildID = {guildID};"
+        cursor.execute(sql)
+        database.commit()
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+    def delete_all_server_users(guildID: str):
+        # delete all from the users table where the guildID = input
+        pass
+
+    def cleanup_locations():
+        # run in a thread every hour or so
+        # read in at most 50 entries
+        # check all those entries to see if they're empty using get_users_at_location()
+
+        pass
 
 
+# get a server's datasetID
 def get_datasetID(guildID: str):
-    pass
+    database = make_db_connection()
+    cursor = database.cursor()
+
+    try:
+        sql = f"SELECT datasetID FROM Servers WHERE guildID = '{guildID}';"
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+        # store all results into an array
+        columns = [x[0] for x in result]
+        print(columns)
+
+        # only return the first result (since you want a string, and there should only be 1 datasetID per guildID)
+        if result == [] or result is None:
+            return ""
+        else:
+            return str(columns[0])
+    except Exception as e:
+        print(e)
+        return ""

@@ -69,6 +69,7 @@
 <div id="map"></div>
 
 <script>
+    //TODO: ensure that deleted points don't appear on map
     mapboxgl.accessToken = 'pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
     const map = new mapboxgl.Map({
         container: 'map',
@@ -113,12 +114,12 @@
                     id: 'clusters',
                     type: 'circle',
                     source: 'locations',
-                    filter: ['has', 'point_count'],
+                    filter: ['has', 'point_count'], //TODO: change to count
                     paint: {
                         // "circle-color": "#f1f075",
                         'circle-color': [
                             'step',
-                            ['get', 'point_count'],
+                            ['get', 'point_count'], //TODO: how to make it the sum (of count) of all features (within the cluster)??
                             '#51bbd6', // default color
                             5,
                             '#f1f075',
@@ -128,7 +129,7 @@
                         // "circle-radius": 40
                         'circle-radius': [
                             'step',
-                            ['get', 'point_count'],
+                            ['get', 'point_count'],  //TODO: how to make it the sum (of count) of all features (within the cluster)??
                             20, // default for clusters
                             10, 30, // >= 10 points then 30 px
                             20, 40
@@ -141,7 +142,7 @@
                     id: 'cluster-count',
                     type: 'symbol',
                     source: 'locations',
-                    filter: ['has', 'point_count'],
+                    filter: ['has', 'point_count'], //TODO: change this to point
                     layout: {
                         'text-field': ['get', 'point_count_abbreviated'],
                         'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
@@ -156,7 +157,7 @@
                     source: 'locations',
                     // filter so that everything without a point_count (i.e.
                     // not in a cluster) becomes an unclustered_point
-                    filter: ['!', ['has', 'point_count']],
+                    filter: ['!', ['has', 'point_count']], //TODO may need to change this to count as well
                     paint: {
                         'circle-color': '#ADD8E6',
                         'circle-radius': 10,

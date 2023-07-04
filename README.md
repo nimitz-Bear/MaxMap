@@ -2,7 +2,7 @@
 
 ---
 **Maxmap** is a bot that allows discord users to share the cities they live with. Then, you can see a map with pins showing
-server member's locations. You can use [this link](https://discord.com/api/oauth2/authorize?client_id=1120211992947478588&permissions=397284735040&scope=bot) to add it to your discord server. 
+server member's locations. You can use [this link](https://discord.com/api/oauth2/authorize?client_id=1120211992947478588&permissions=397284730944&scope=bot) to add it to your discord server. 
 
 ![img.png](assets/img.png)
 Example of the map
@@ -65,7 +65,7 @@ POSITIONSTACK_KEY="Your_positionstack_key"
 In order to see changes in `index.html` appear in the webpage, need to cd into the `web/` directory and run 
 `firebase deploy --only hosting` from command line
 
-`Dataset`s are analogous to being a table/collection of entries, and represent a set of locations
+`Dataset`s are analogous to being a table/collection of entries, and represent a set of locations. Each discord server has a separate dataset.
 
 `Feature`s represent individual entries in a `Dataset`, and represent a single location
 

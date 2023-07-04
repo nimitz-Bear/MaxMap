@@ -11,10 +11,10 @@ def help() -> Embed:
     info.add_field(name='Delete city from map', value=f'Use `/removecity` with your city and country '
                                                       f'to remove your city from the map, e.g. `/removecity Paris France`')
     info.add_field(name='See the map', value=f"Use `/map` to see the map of your community!")
-    info.add_field(name='Privacy Notice', value=f"Please note that the map is public."
-                                               f"By adding your city to the map, you acknowledge this. You can delete "
-                                               f"your city at any time. If there are any issues, please contact "
-                                               f"nimitz_ on discord.")
+    info.add_field(name='Privacy Notice', value=f"Please note that the map is public. "
+                                                f" By adding your city to the map, you acknowledge and consent to this."
+                                                f" You can delete your city at any time. If there are any issues, "
+                                                f"please contact nimitz_ on discord.")
     return info
 
 

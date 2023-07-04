@@ -6,12 +6,13 @@ import json
 import requests
 import os
 from dotenv import load_dotenv
+import databaseFunctions as db
 
 
 # insert/update a feature (i.e. a location on a map)
 # featureID and count must be provided to update a feature
 # returns True if it succeeds, else False
-def upsert_feature(lat: float, lng: float, discordUsernames: list[str], count: int = 1, featureID: str = None):
+def upsert_feature(lat: float, lng: float, discordUsernames: list[str], guildID, count: int = 1, featureID: str = None):
 
     # ensure lat, lng inputs are floats
     if not isinstance(lat, float) or not isinstance(lng, float):
@@ -24,8 +25,12 @@ def upsert_feature(lat: float, lng: float, discordUsernames: list[str], count: i
 
     # mapbox lets you update/add a featureID with the same kind of request
     # make an http request to add/update the mapbox feature with a given featureID
+    temp = db.get_datasetID(guildID)
+    print(temp)
+    print(feature_id)
+
     url = \
-        f"https://api.mapbox.com/datasets/v1/nimitz-/{os.getenv('DATASET_ID')}/features/{feature_id}?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
+        f"https://api.mapbox.com/datasets/v1/nimitz-/{db.get_datasetID(guildID)}/features/{feature_id}?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
     headers = {"Content-Type": "application/json"}
     requestbody = {
         "id": f"{feature_id}",
@@ -43,12 +48,10 @@ def upsert_feature(lat: float, lng: float, discordUsernames: list[str], count: i
     }
 
     response = requests.put(url=url, headers=headers, data=json.dumps(requestbody))
-
-    print(response.text)
     response.close()
 
     if not response.ok:
-        print(f"Error when deleting: [{response.status_code}] {response.text}")
+        print(f"Error when upserting: [{response.status_code}] {response.text}")
         return False, feature_id, response.text
 
     return True, feature_id, response.text
@@ -56,8 +59,8 @@ def upsert_feature(lat: float, lng: float, discordUsernames: list[str], count: i
 
 # delete a feature (i.e. a location on the map)
 # NOTE: this isn't just for one person. This location will cease to exist as part of the dataset
-def delete_feature(featureID: str):
-    url = f"https://api.mapbox.com/datasets/v1/nimitz-/{os.getenv('DATASET_ID')}/features/{featureID}?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
+def delete_feature(featureID: str, guildID: str):
+    url = f"https://api.mapbox.com/datasets/v1/nimitz-/{db.get_datasetID(guildID)}/features/{featureID}?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
     header = {"Content-Type": "application/json"}
     response = requests.delete(url, headers=header)
 
@@ -69,11 +72,43 @@ def delete_feature(featureID: str):
 
 
 # returns list of features as JSON
-def list_features():
+def list_features(guildID: str):
     url = \
-        f"https://api.mapbox.com/datasets/v1/nimitz-/{os.getenv('DATASET_ID')}/features?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
+        f"https://api.mapbox.com/datasets/v1/nimitz-/{db.get_datasetID()}/features?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
     r = requests.get(url)
     print(r.json())
     return r.json()
 
 
+# used to create a new dataset, when a new server is added
+# returns status, datasetID
+def create_dataset(guildID: str):
+    url = f"https://api.mapbox.com/datasets/v1/nimitz-?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
+    request = {
+        "name": guildID,
+        "description": ""
+    }
+    response = requests.post(url=url, data=json.dumps(request))
+    if not response.ok:
+        print("Error! " + response.text)
+        return False, ""
+
+    result = response.json()
+    return True, result["id"]
+
+
+# destroys a dataset and all features within it
+def delete_dataset(datasetID: str):
+    url = f"https://api.mapbox.com/datasets/v1/nimitz-/{datasetID}?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
+    response = requests.delete(url=url, headers={"Content-Type": "application/json"})
+    if not response.status_code == 204:
+        print(f"Error {response.status_code} " + response.text)
+        return False
+
+    print(response.text)
+    return True
+
+
+# load_dotenv("secrets.env")
+# upsert_feature( 41.01384, 28.94966, ["nimitz_ test"], 1120260208866885692, 1, "e911b470-5ebb-40a5-89f1-36b96c7fba62")
+# delete_dataset("cljm5vvre06nk2nk2bjkodpif")

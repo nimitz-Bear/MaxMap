@@ -20,7 +20,7 @@ def get_lat_lng_from_city(city: str, country: str):
         return True, data['data'][0]["latitude"], data['data'][0]["longitude"]
 
 
-# returns the locationID based on city, country
+# return locationID based on city, country
 # returns none, if city, country is not present in DB yet
 # NOTE: only returns the first
 def get_locationID(city: str, country: str):
