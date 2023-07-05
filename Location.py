@@ -8,7 +8,6 @@ async def decrement(city: str, country: str, discordUserID: str, featureID: str,
     db.delete_user(discordUserID, featureID, ctx.guild.id)
     count = db.server_location_count(city, country, ctx.guild.id)
 
-
     # if there's no one else in a location, delete it from the DB and the dataset
     if count == 0:
         await delete(featureID, city, country, guildID=ctx.guild.id)

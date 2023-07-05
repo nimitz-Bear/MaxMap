@@ -4,6 +4,7 @@ import os
 
 import Embeds
 import Location
+import Server
 
 import databaseFunctions as db
 import mapbox
@@ -72,19 +73,16 @@ def run_discord_bot():
         print(f"creating a new dataset for joining: {guild.id}")
 
         # create a new dataset for each server the bot joins and save datasetID to Servers table
-        _, datasetID = mapbox.create_dataset(guild.id)
-        db.insert_server(guild.id, datasetID)
+        Server.on_join(guild)
 
     @bot.event
     async def on_guild_remove(guild):
-        pass
-        # _, datasetID = db.get_datasetID(guild.id)
-        # mapbox.nuke_dataset(datasetID)
+        print(f"Left guild: {guild.id}")
+        Server.on_leave(guild.id)
 
     @bot.event
     async def on_application_command_error(ctx, error):
         print(str(error))
-
-        await ctx.send(f"An unexpected error occured: {error} ")
+        await ctx.send(f"An unexpected error occured")
 
     bot.run(os.getenv("DISCORD_TOKEN"))

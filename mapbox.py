@@ -82,11 +82,11 @@ def list_features(guildID: str):
 
 # used to create a new dataset, when a new server is added
 # returns status, datasetID
-def create_dataset(guildID: str):
+def create_dataset(guild):
     url = f"https://api.mapbox.com/datasets/v1/nimitz-?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
     request = {
-        "name": guildID,
-        "description": ""
+        "name": guild.name,
+        "description": guild.id
     }
     response = requests.post(url=url, data=json.dumps(request))
     if not response.ok:
