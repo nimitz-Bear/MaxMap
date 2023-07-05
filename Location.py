@@ -64,6 +64,7 @@ async def new(city: str, country: str, ctx):
 
 
 async def delete(featureID: str, city: str, country: str, guildID: str):
+    print("testing")
     # FIXME: can de-synchronize DB and mapbox if one of the two below fails, and the other succeeds
     mapbox.delete_feature(featureID, guildID=guildID)
     db.delete_location(city, country, guildID)

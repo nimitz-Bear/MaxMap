@@ -29,9 +29,6 @@ def run_discord_bot():
                 f"Missing arguments. Correct usage is `/addcity city country`, for example /addcity Nottingham UK")
             return
 
-        print(ctx.guild.id)
-        print(db.get_datasetID(ctx.guild.id))
-
         # defer response to give time for api calls and DB queries
         await ctx.defer()
 
@@ -70,7 +67,7 @@ def run_discord_bot():
 
     @bot.event
     async def on_guild_join(guild):
-        print(f"creating a new dataset for joining: {guild.id}")
+        print(f"creating a new dataset for joining: {guild.name}, {guild.id}")
 
         # create a new dataset for each server the bot joins and save datasetID to Servers table
         Server.on_join(guild)

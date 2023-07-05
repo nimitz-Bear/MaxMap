@@ -26,8 +26,6 @@ def upsert_feature(lat: float, lng: float, discordUsernames: list[str], guildID,
     # mapbox lets you update/add a featureID with the same kind of request
     # make an http request to add/update the mapbox feature with a given featureID
     temp = db.get_datasetID(guildID)
-    print(temp)
-    print(feature_id)
 
     url = \
         f"https://api.mapbox.com/datasets/v1/nimitz-/{db.get_datasetID(guildID)}/features/{feature_id}?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
@@ -74,7 +72,7 @@ def delete_feature(featureID: str, guildID: str):
 # returns list of features as JSON
 def list_features(guildID: str):
     url = \
-        f"https://api.mapbox.com/datasets/v1/nimitz-/{db.get_datasetID()}/features?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
+        f"https://api.mapbox.com/datasets/v1/nimitz-/{db.get_datasetID(guildID)}/features?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
     r = requests.get(url)
     print(r.json())
     return r.json()
@@ -88,12 +86,14 @@ def create_dataset(guild):
         "name": guild.name,
         "description": guild.id
     }
-    response = requests.post(url=url, data=json.dumps(request))
+    response = requests.post(url=url,  headers={"Content-Type": "application/json"}, data=json.dumps(request))
     if not response.ok:
         print("Error! " + response.text)
         return False, ""
 
     result = response.json()
+    featureID = result["id"]
+    print(f"Creating dataset {featureID}")
     return True, result["id"]
 
 
@@ -107,8 +107,3 @@ def delete_dataset(datasetID: str):
 
     print(response.text)
     return True
-
-
-# load_dotenv("secrets.env")
-# upsert_feature( 41.01384, 28.94966, ["nimitz_ test"], 1120260208866885692, 1, "e911b470-5ebb-40a5-89f1-36b96c7fba62")
-# delete_dataset("cljm5vvre06nk2nk2bjkodpif")

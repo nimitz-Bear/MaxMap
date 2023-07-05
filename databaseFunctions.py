@@ -69,31 +69,13 @@ def delete(sqlDeleteQuery: str):
 
 # inserts a new location into the DB
 def insert_location(featureID: str, city: str, country: str, lat: float, lng: float, guildID: str):
-    database = make_db_connection()
-
-    try:
-        sql = f"INSERT INTO Locations (featureID, city, country, lat, lng, guildID) VALUES (%s, %s, %s, %s, %s, %s);"
-        cursor = database.cursor()
-        cursor.execute(sql, (featureID, city, country, lat, lng, guildID))
-        database.commit()
-        return True
-    except Exception as e:
-        print(e)
-        return False
+    return insert(f"INSERT INTO Locations (featureID, city, country, lat, lng, guildID) VALUES (%s, %s, %s, %s, %s, %s);",
+                  (featureID, city, country, lat, lng, guildID))
 
 
 def delete_location(city: str, country: str, guildID: str):
-    database = make_db_connection()
-    cursor = database.cursor()
-
-    try:
-        sql = f"DELETE FROM Locations WHERE city = '{city}' AND country = '{country}' AND guildID = '{guildID}';"
-        cursor.execute(sql)
-        database.commit()
-        return True
-    except Exception as e:
-        print(e)
-        return False
+    sql = f"DELETE FROM Locations WHERE city = '{city}' AND country = '{country}' AND guildID = '{guildID}';"
+    return delete(sqlDeleteQuery=sql)
 
 
 # gets featureID based on city, country. Returns true if 1 or more entries found
@@ -144,35 +126,12 @@ def server_location_count(city: str, country: str, guildID: str):
 # add a user to the DB
 # NOTE: user may choose to have multiple entries
 def insert_user(discordUserID: str, discordUsername: str, featureID: str, guildID: str):
-    database = make_db_connection()
-    cursor = database.cursor()
-
-    try:
-        sql = "INSERT INTO Users (discordUserId, discordUsername, featureID, guildID) VALUES (%s, %s, %s, %s);"
-        val = (f"{discordUserID}", f"{discordUsername}", f"{featureID}", f"{guildID}")
-        cursor.execute(sql, val)
-        database.commit()
-        return True
-    except Exception as e:
-        print(e)
-        return False
+    return insert(sqlInsertQuery=f"INSERT INTO Users (discordUserId, discordUsername, featureID, guildID) VALUES (%s, %s, %s, %s);",
+           values=(f"{discordUserID}", f"{discordUsername}", f"{featureID}", f"{guildID}"))
 
 
 def delete_user(discordUserID: str, featureID: str, guildID: str):
-    database = make_db_connection()
-    cursor = database.cursor()
-
-    try:
-        # a discordUserID may have multiple Locations (i.e. featureID's)
-        # but a featureID can't have multiple of the same discordUserID (i.e. a user shouldn't
-        # be registered in the same place twice)
-        sql = f"DELETE FROM Users WHERE discordUserID = '{discordUserID}' AND featureID = '{featureID}' AND guildID ='{guildID}';"
-        cursor.execute(sql)
-        database.commit()
-        return True
-    except Exception as e:
-        print(e)
-        return False
+    return delete(f"DELETE FROM Users WHERE discordUserID = '{discordUserID}' AND featureID = '{featureID}' AND guildID ='{guildID}';")
 
 
 def get_user_list_at_feature(featureID: str):
@@ -193,42 +152,12 @@ def get_user_list_at_feature(featureID: str):
 
 # store a server's associated dataset in the table
 def insert_server(guildID: str, datasetID: str):
-    database = make_db_connection()
-    cursor = database.cursor()
-
-    try:
-        sql = f"INSERT INTO Servers (guildID, datasetID) VALUES (%s, %s);"
-        val = (guildID, datasetID)
-        cursor.execute(sql, val)
-        database.commit()
-    except Exception as e:
-        print(e)
+    return insert(f"INSERT INTO Servers (guildID, datasetID) VALUES (%s, %s);", (guildID, datasetID) )
 
 
-# remove a server's dataset from the table
+# remove a server's configuration from the table
 def delete_server(guildID: str):
-    database = make_db_connection()
-    cursor = database.cursor()
-
-    try:
-        sql = f"DELETE FROM Servers WHERE guildID = {guildID};"
-        cursor.execute(sql)
-        database.commit()
-        return True
-    except Exception as e:
-        print(e)
-        return False
-
-    def delete_all_server_users(guildID: str):
-        # delete all from the users table where the guildID = input
-        pass
-
-    def cleanup_locations():
-        # run in a thread every hour or so
-        # read in at most 50 entries
-        # check all those entries to see if they're empty using get_users_at_location()
-
-        pass
+    return delete(f"DELETE FROM Servers WHERE guildID = {guildID};")
 
 
 # get a server's datasetID
