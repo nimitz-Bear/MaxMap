@@ -5,11 +5,9 @@ import os
 import Embeds
 import Location
 import Server
+import Utils
 
 import databaseFunctions as db
-import mapbox
-from discord.ext import commands
-import mysql
 
 
 def run_discord_bot():
@@ -17,7 +15,6 @@ def run_discord_bot():
 
     @bot.command(name="map", brief="shows map", description="Shows the map of the community")
     async def showMap(ctx):
-
         await ctx.respond(f"You can view the map at: https://maxmap-252b2.web.app/")
 
     @bot.command(name="addcity", description="Add the city closest to where you live to the map.")
@@ -29,10 +26,22 @@ def run_discord_bot():
                 f"Missing arguments. Correct usage is `/addcity city country`, for example /addcity Nottingham UK")
             return
 
+        if not Utils.is_country(country):
+            await ctx.respond(f"{country} is not a valid input for the country field. Please enter a valid country")
+            return
+
         # defer response to give time for api calls and DB queries
         await ctx.defer()
 
-        # TODO: also check if the lat, lng exist already
+        # auto-suggest response if Mapbox doesn't recognize city, country
+        not_recognized, rec_city, rec_country = Utils.auto_suggest_city_and_country(city, country)
+        if rec_city == "" and rec_country == "":
+            await ctx.respond(f"Invalid input {city}, {country}. Mapbox wasn't able to find a matching "
+                              f"city/town/village/municipality")
+            return
+        elif not_recognized:
+            await ctx.respond(f"Mapbox did not recognize input. Perhaps you mean {rec_city}, {rec_country}")
+            return
 
         # if location doesn't exist for a server, make a new location and add it to dataset, DB
         if db.server_location_count(city, country, ctx.guild.id) == 0:
@@ -48,6 +57,10 @@ def run_discord_bot():
         if city is None or country is None:
             await ctx.respond(
                 "Missing arguments. Correct usage is `/removecity city country`, for example /removecity Nottingham UK")
+            return
+
+        if not Utils.is_country(country):
+            await ctx.respond(f"{country} is not a valid input for the country field.  Please enter a valid country")
             return
 
         #  defer response to give time for api calls and DB queries
@@ -80,6 +93,6 @@ def run_discord_bot():
     @bot.event
     async def on_application_command_error(ctx, error):
         print(str(error))
-        await ctx.send(f"An unexpected error occured")
+        await ctx.respond(f"An unexpected error occured")
 
     bot.run(os.getenv("DISCORD_TOKEN"))
