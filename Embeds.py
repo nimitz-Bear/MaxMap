@@ -18,17 +18,17 @@ def help() -> Embed:
     return info
 
 
-def success(message: str) -> Embed:
+def success(text: str) -> Embed:
     return Embed(
         title="Maxmap",
         color=Colour.og_blurple(),
-        description=message
+        description=text
     )
 
 
-def error(message: str) -> Embed:
+def error(text: str) -> Embed:
     return Embed(
-        title="Error",
+        title="Maxmap Error",
         color=Colour.brand_red(),
-        description=message
+        description=text
     )

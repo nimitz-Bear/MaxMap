@@ -1,3 +1,4 @@
+import Embeds
 import mapbox
 import databaseFunctions as db
 import Utils
@@ -11,7 +12,8 @@ async def decrement(city: str, country: str, discordUserID: str, featureID: str,
     # if there's no one else in a location, delete it from the DB and the dataset
     if count == 0:
         await delete(featureID, city, country, guildID=ctx.guild.id)
-        await ctx.followup.send(f"Location is now empty. Deleted {city}, {country}")
+        await ctx.followup.send(ephemeral=True, embed=Embeds.success(
+            f"Location is now empty. Deleted {city}, {country} from the map"))
     else:
         # get list of users
         _, users = db.get_user_list_at_feature(featureID)
@@ -19,7 +21,8 @@ async def decrement(city: str, country: str, discordUserID: str, featureID: str,
 
         # update the result in mapbox
         mapbox.upsert_feature(lat, lng, users, ctx.guild.id, count, featureID)
-        await ctx.followup.send(f"Removed {ctx.author}'s entry from the map for {city}, {country}")
+        await ctx.followup.send(ephemeral=True, embed=Embeds.success(
+            f"Removed {ctx.author}'s entry from the map for {city}, {country}"))
 
 
 async def increment(city: str, country: str, ctx):
@@ -42,13 +45,14 @@ async def increment(city: str, country: str, ctx):
     mapbox.upsert_feature(lat, lng, users, ctx.guild.id, count, featureID)
 
     # finally respond to the user
-    await ctx.followup.send(f"{city}, {country} is already on the map and has been incremented")
+    await ctx.followup.send(ephemeral=True, embed=Embeds.success(
+        f"{city}, {country} is already on the map and has been incremented"))
 
 
 async def new(city: str, country: str, ctx):
     success, lat, lng = Utils.get_lat_lng_from_city(city, country)
     if not success:
-        await ctx.followup.send(f"Error: no coordinates found for {city}, {country}")
+        await ctx.followup.send(ephemeral=True, embed=Embeds.error(f"Error: no coordinates found for {city}, {country}"))
         return
 
     # add the new location feature to mapbox and to the Locations DB
@@ -60,7 +64,7 @@ async def new(city: str, country: str, ctx):
 
     # finally, add user to Users DB (relies on featureID in locationDB)
     db.insert_user(str(ctx.author.id), str(ctx.author.name), featureID, ctx.guild.id)
-    await ctx.followup.send(f"{city}, {country} has been added to the map")
+    await ctx.respond(ephemeral=True, embed=Embeds.success(f"{city}, {country} has been added to the map"))
 
 
 async def delete(featureID: str, city: str, country: str, guildID: str):

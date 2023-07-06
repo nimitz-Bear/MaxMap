@@ -24,12 +24,13 @@ def run_discord_bot():
     @option("country", description="Enter the country you live in", required=True)
     async def addcity(ctx, city: str, country: str):
         if city is None or country is None:
-            await ctx.respond(
-                f"Missing arguments. Correct usage is `/addcity city country`, for example /addcity Nottingham UK")
+            await ctx.respond(ephemeral=True, embed=Embeds.error(
+                text=f"Missing arguments. Correct usage is `/addcity city country`, for example /addcity Nottingham UK"))
             return
 
         if not Utils.is_country(country):
-            await ctx.respond(f"{country} is not a valid input for the country field. Please enter a valid country")
+            await ctx.respond(ephemeral=True, embed=Embeds.error(
+                text=f"{country} is not a valid input for the country field. Please enter a valid country"))
             return
 
         # defer response to give time for api calls and DB queries
@@ -38,17 +39,20 @@ def run_discord_bot():
         # check if the user has already entered a feature here
         _, featureID = db.get_feature_id(city, country, ctx.guild.id)
         if db.is_duplicate(ctx, featureID):
-            await ctx.respond(f"It looks like you already have an entry for {city}, {country}")
+            await ctx.respond(embed=Embeds.error(
+                f"It looks like you already have an entry for {city}, {country}"))
             return
 
         # auto-suggest response if Mapbox doesn't recognize city, country
         not_recognized, rec_city, rec_country = Utils.auto_suggest_city_and_country(city, country)
         if rec_city == "" and rec_country == "":
-            await ctx.respond(f"Invalid input {city}, {country}. Mapbox wasn't able to find a matching "
-                              f"city/town/village/municipality")
+            await ctx.respond(embed=Embeds.error(
+                f"Invalid input {city}, {country}. Mapbox wasn't able to find a matching "
+                              f"city/town/village/municipality"))
             return
         elif not_recognized:
-            await ctx.respond(f"Mapbox did not recognize input. Perhaps you mean {rec_city}, {rec_country}")
+            await ctx.respond(embed=Embeds.error(
+                f"Mapbox did not recognize input. Perhaps you mean {rec_city}, {rec_country}"))
             return
 
         # if location doesn't exist for a server, make a new location and add it to dataset, DB
@@ -63,17 +67,19 @@ def run_discord_bot():
     @option("country", description="Entry the country you live in", required=True)
     async def removecity(ctx, city: str = None, country: str = None):
         if city is None or country is None:
-            await ctx.respond(
-                "Missing arguments. Correct usage is `/removecity city country`, for example /removecity Nottingham UK")
+            await ctx.respond(ephemeral=True, embed=Embeds.error(
+                "Missing arguments. Correct usage is `/removecity city country`, for example /removecity Nottingham UK"))
             return
         elif not Utils.is_country(country):
-            await ctx.respond(f"{country} is not a valid input for the country field.  Please enter a valid country")
+            await ctx.respond(ephemeral=True, embed=Embeds.error(
+                f"{country} is not a valid input for the country field.  Please enter a valid country"))
             return
 
         # ensure that a user can't delete a non-existent city
         _, featureID = db.get_feature_id(city, country, ctx.guild.id)
         if not db.is_duplicate(ctx, featureID):
-            await ctx.respond(f"Failed to delete. You don't seem to have an entry for {city}, {country}")
+            await ctx.respond(embed=Embeds.error(
+                f"Failed to delete. You don't seem to have an entry for {city}, {country}"))
             return
 
         #  defer response to give time for api calls and DB queries
