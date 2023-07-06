@@ -4,6 +4,7 @@ import mysql.connector
 from dotenv import load_dotenv
 from mysql.connector import errorcode
 
+# TODO: combine the select queries here into one select function
 
 # returns None if connecting throws an error
 def make_db_connection():
@@ -182,3 +183,27 @@ def get_datasetID(guildID: str):
     except Exception as e:
         print(e)
         return ""
+
+
+# returns True if a user is already registered with a feature at a certain location
+def is_duplicate(ctx, featureID: str):
+    guildID = ctx.guild.id
+    userID = ctx.author.id
+
+    database = make_db_connection()
+    cursor = database.cursor()
+
+    try:
+        cursor.execute("SELECT * FROM Users WHERE guildID=%s AND discordUserID=%s AND featureID=%s LIMIT 1;", (guildID, userID, featureID))
+        results = cursor.fetchall()
+        if len(results) > 0:
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        return False
+
+
+# load_dotenv("secrets.env")
+# print(user_entry_exists("1120260208866885692", "223747505597317120", "f095f5b6-9b59-42a1-ba28-1a1dc4c3bb62"))

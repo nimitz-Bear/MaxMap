@@ -33,7 +33,6 @@ def is_country(a_str: str):
     return False
 
 
-# TODO: change this to use mapbox, too
 # returns false as the first argument, if it can't find locations
 def get_lat_lng_from_city(city: str, country: str):
     # url = "http://api.positionstack.com/v1/forward?" + "access_key=" + os.getenv("POSITIONSTACK_KEY") + \
@@ -140,9 +139,10 @@ def get_locationID(city: str, country: str):
     return output[0][0]
 
 
-load_dotenv("secrets.env")
+# FIXME: delete these
+# load_dotenv("secrets.env")
 # # print(auto_suggest_city_and_country("Northampton", "England"))
-auto_suggest_city_and_country("4 Privet Drive, Surrey", "United Kingdom")
+# auto_suggest_city_and_country("4 Privet Drive, Surrey", "United Kingdom")
 
 # print([o.name for o in list(iso3166.countries)])
 # print(is_country("South Korea"))

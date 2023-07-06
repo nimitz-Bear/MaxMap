@@ -1,3 +1,5 @@
+import datetime
+
 import discord
 from discord import option
 import os
@@ -33,6 +35,12 @@ def run_discord_bot():
         # defer response to give time for api calls and DB queries
         await ctx.defer()
 
+        # check if the user has already entered a feature here
+        _, featureID = db.get_feature_id(city, country, ctx.guild.id)
+        if db.is_duplicate(ctx, featureID):
+            await ctx.respond(f"It looks like you already have an entry for {city}, {country}")
+            return
+
         # auto-suggest response if Mapbox doesn't recognize city, country
         not_recognized, rec_city, rec_country = Utils.auto_suggest_city_and_country(city, country)
         if rec_city == "" and rec_country == "":
@@ -58,9 +66,14 @@ def run_discord_bot():
             await ctx.respond(
                 "Missing arguments. Correct usage is `/removecity city country`, for example /removecity Nottingham UK")
             return
-
-        if not Utils.is_country(country):
+        elif not Utils.is_country(country):
             await ctx.respond(f"{country} is not a valid input for the country field.  Please enter a valid country")
+            return
+
+        # ensure that a user can't delete a non-existent city
+        _, featureID = db.get_feature_id(city, country, ctx.guild.id)
+        if not db.is_duplicate(ctx, featureID):
+            await ctx.respond(f"Failed to delete. You don't seem to have an entry for {city}, {country}")
             return
 
         #  defer response to give time for api calls and DB queries
@@ -76,23 +89,23 @@ def run_discord_bot():
 
     @bot.event
     async def on_ready():
-        print(f"Bot is running as {bot.user}")
+        print(f"LOGGING: Bot is running as {bot.user}")
 
     @bot.event
     async def on_guild_join(guild):
-        print(f"creating a new dataset for joining: {guild.name}, {guild.id}")
+        print(f"LOGGING: creating a new dataset for joining: {guild.name}, {guild.id}")
 
         # create a new dataset for each server the bot joins and save datasetID to Servers table
         Server.on_join(guild)
 
     @bot.event
     async def on_guild_remove(guild):
-        print(f"Left guild: {guild.id}")
+        print(f"LOGGING: Left guild: {guild.id}")
         Server.on_leave(guild.id)
 
     @bot.event
     async def on_application_command_error(ctx, error):
-        print(str(error))
+        print(f"LOGGING: Error occurred at {datetime.datetime.utcnow()} UTC: ", str(error))
         await ctx.respond(f"An unexpected error occured")
 
     bot.run(os.getenv("DISCORD_TOKEN"))
