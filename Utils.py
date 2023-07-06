@@ -35,21 +35,16 @@ def is_country(a_str: str):
 
 # returns false as the first argument, if it can't find locations
 def get_lat_lng_from_city(city: str, country: str):
-    # url = "http://api.positionstack.com/v1/forward?" + "access_key=" + os.getenv("POSITIONSTACK_KEY") + \
-    #       "&query=" + city + " " + country + "&limit=1"
-
-    # get the coordinates from mapbox
-    url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/{city}%20{country}.json?types=place&limit=1&access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
+    url = "http://api.positionstack.com/v1/forward?" + "access_key=" + os.getenv("POSITIONSTACK_KEY") + \
+          "&query=" + city + " " + country + "&limit=1"
     response = requests.get(url)
-
+    print(response.text)
     data = response.json()
-    print(data)
-    print(data['features'][0]['center'])
-
-    if not response.ok:
+    print(f"input city: {city}, {country} is at {data['data'][0]['latitude']}, {data['data'][0]['longitude']} ")
+    if data['data'] == []:
         return False, 0.0, 0.0
     else:
-        return True, data['features'][0]['center'][0], data['features'][0]['center'][1]
+        return True, data['data'][0]["latitude"], data['data'][0]["longitude"]
 
 
 # used to convert a user-inputted location, country to mapbox place and ISO 3166 country
