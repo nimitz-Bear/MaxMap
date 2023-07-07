@@ -19,15 +19,19 @@ def run_discord_bot():
     async def showMap(ctx):
         # get the dataset ID
         datasetID = db.get_datasetID(ctx.guild.id)
+
+        if datasetID == "":
+            await ctx.respond(f"Error. Could not find datasetID for this server.")
+
         await ctx.respond(f"You can view the map at: https://maxmap-252b2.web.app?{datasetID}")
 
-    @bot.command(name="addcity", description="Add the city closest to where you live to the map.")
+    @bot.command(name="add-city", description="Add the city closest to where you live to the map.")
     @option("city", description="Enter the city closest to you", required=True)
     @option("country", description="Enter the country you live in", required=True)
     async def addcity(ctx, city: str, country: str):
         if city is None or country is None:
             await ctx.respond(ephemeral=True, embed=Embeds.error(
-                text=f"Missing arguments. Correct usage is `/addcity city country`, for example /addcity Nottingham UK"))
+                text=f"Missing arguments. Correct usage is `/add-city city country`, for example /add-city Nottingham UK"))
             return
 
         if not Utils.is_country(country):
@@ -64,13 +68,14 @@ def run_discord_bot():
         else:
             await Location.increment(city, country, ctx)
 
-    @bot.command(name="removecity", description="Delete where you live from the map")
-    @option("city", description="Enter the ", required=True)
-    @option("country", description="Entry the country you live in", required=True)
+    @bot.command(name="remove-city", description="Delete where you live from the map")
+    @option("city", description="Enter city entry to remove", required=True)
+    @option("country", description="Entry country entry to remove", required=True)
     async def removecity(ctx, city: str = None, country: str = None):
         if city is None or country is None:
             await ctx.respond(ephemeral=True, embed=Embeds.error(
-                "Missing arguments. Correct usage is `/removecity city country`, for example /removecity Nottingham UK"))
+                "Missing arguments. Correct usage is `/remove-city city country`, for example "
+                "/remove-city Nottingham UK"))
             return
         elif not Utils.is_country(country):
             await ctx.respond(ephemeral=True, embed=Embeds.error(

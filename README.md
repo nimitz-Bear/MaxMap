@@ -17,8 +17,8 @@ This project also uses [PositionStack](https://positionstack.com/documentation) 
 ---
 
 - `map` returns a URL that will show a map of cities representing your server's members
-- `addcity` add your city to the map
-- `removecity` remove your city from the map
+- `add-city` add your city to the map
+- `remove-city` remove your city from the map
 
 ## Data
 
@@ -26,8 +26,8 @@ This project also uses [PositionStack](https://positionstack.com/documentation) 
 **Maxmap** stores the minimal amount of user information in a MySQL database. It only stores server info like the guildID 
 so that it knows which dataset to show.
 
-- `addcity` stores your userid, the city and country that you input
-- `removecity` removes your userid, city and country from the database
+- `add-city` stores your userid, the city and country that you input
+- `remove-city` removes your userid, city and country from the database
 
 ## Credits
 Credits to [Joe Sieniwaski](https://github.com/jozefws) for coming up with the idea and much of the inital codebase, and for his support 
