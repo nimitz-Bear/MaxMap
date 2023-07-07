@@ -39,13 +39,13 @@ This is ONLY if you wish to run the bot yourself, as a developer.
 1. Ensure that you have Python 3.11 or higher installed
 2. Create a `secrets.env` file and ensure that it is added to the .gitignore
 3. Create a [Discord developer account](https://discord.com/developers/applications) and create a bot token and add it as `DISCORD_TOKEN=your_token` to `secrets.env`
-4. Create a [mapbox account](https://account.mapbox.com/) and get a private token (with read/write dataset enabled)
-5. Create a mapbox dataset 
-6. Install MySQL and create a Database with the name `maxmap`
-7. Run `pip install -r requirements.txt` to install all the Python dependencies
-8. Create a [PositionStack](https://positionstack.com/documentation) API Key and add it to `secrets.env` as `POSITIONSTACK_KEY=Your_key`
-9. Run the bot from the main function in `main.py`
-10. Host the website
+4. Create a [mapbox account](https://account.mapbox.com/) and get a private token (with read/write dataset enabled) and call it `MAPBOX_SECRET_TOKEN`
+5. Install MySQL and create a Database with the name `maxmap`
+   1. If you have an error like `1044 (42000): Access denied for user 'maxmap'@'localhost' to database 'maxmap'`, then you need to open a mysql terminal and run `GRANT ALL PRIVILEGES ON maxmap.*  TO 'your_username'@'localhost';`
+6. Run `pip install -r requirements.txt` to install all the Python dependencies
+7. Create a [PositionStack](https://positionstack.com/documentation) API Key and add it to `secrets.env` as `POSITIONSTACK_KEY=Your_key`
+8. Run `python 3 main.py`. Now your bot should be running and you should be able ot execute commands.
+9. Host `web/index.html` using something like [Firebase](https://firebaseopensource.com/projects/firebaseextended/emberfire/docs/guide/deploying-to-firebase-hosting/)
 
 By the end, you should have a `secrets.env` file that looks like:
 ```

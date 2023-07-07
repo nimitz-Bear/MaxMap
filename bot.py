@@ -17,7 +17,9 @@ def run_discord_bot():
 
     @bot.command(name="map", brief="shows map", description="Shows the map of the community")
     async def showMap(ctx):
-        await ctx.respond(f"You can view the map at: https://maxmap-252b2.web.app/")
+        # get the dataset ID
+        datasetID = db.get_datasetID(ctx.guild.id)
+        await ctx.respond(f"You can view the map at: https://maxmap-252b2.web.app?{datasetID}")
 
     @bot.command(name="addcity", description="Add the city closest to where you live to the map.")
     @option("city", description="Enter the city closest to you", required=True)
@@ -85,7 +87,6 @@ def run_discord_bot():
         #  defer response to give time for api calls and DB queries
         await ctx.defer()
 
-        # TODO: check if the city is already in the DB
         _, featureID = db.get_feature_id(city, country, ctx.guild.id)
         await Location.decrement(city, country, ctx.author.id, featureID, ctx)
 

@@ -69,7 +69,16 @@
 <div id="map"></div>
 
 <script>
-    //TODO: ensure that deleted points don't appear on map
+    console.log(window.location)
+
+    // the argument in the URL represents the mapbox dataset ID
+    let datasetID = window.location.search
+
+    // remove the ? at the start of the search
+    if (!datasetID)
+        datasetID = datasetID.slice(1)
+
+
     mapboxgl.accessToken = 'pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
     const map = new mapboxgl.Map({
         container: 'map',
@@ -84,7 +93,7 @@
     // Wait until the map has finished loading.
     map.on('load', async () => {
         const Http = new XMLHttpRequest();
-        const url = 'https://api.mapbox.com/datasets/v1/nimitz-/clj9x8dtj2vvx2hobacf6w3v3/features?access_token=pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
+        const url = `https://api.mapbox.com/datasets/v1/nimitz-/${datasetID}/features?access_token=pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw`;
         Http.open("GET", url);
         Http.send();
 

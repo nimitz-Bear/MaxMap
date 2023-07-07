@@ -46,7 +46,7 @@ async def increment(city: str, country: str, ctx):
 
     # finally respond to the user
     await ctx.followup.send(ephemeral=True, embed=Embeds.success(
-        f"{city}, {country} is already on the map and has been incremented"))
+        f"{city}, {country} is already on the map and has been incremented. It may take a few minutes to appear."))
 
 
 async def new(city: str, country: str, ctx):
@@ -64,7 +64,8 @@ async def new(city: str, country: str, ctx):
 
     # finally, add user to Users DB (relies on featureID in locationDB)
     db.insert_user(str(ctx.author.id), str(ctx.author.name), featureID, ctx.guild.id)
-    await ctx.respond(ephemeral=True, embed=Embeds.success(f"{city}, {country} has been added to the map"))
+    await ctx.respond(ephemeral=True, embed=Embeds.success(f"{city}, {country} has been added to the map. "
+                                                           f"It may take a few minutes for it to appear."))
 
 
 async def delete(featureID: str, city: str, country: str, guildID: str):

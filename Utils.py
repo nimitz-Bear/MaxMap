@@ -134,23 +134,4 @@ def get_locationID(city: str, country: str):
     return output[0][0]
 
 
-# FIXME: delete these
-# load_dotenv("secrets.env")
-# # print(auto_suggest_city_and_country("Northampton", "England"))
-# auto_suggest_city_and_country("4 Privet Drive, Surrey", "United Kingdom")
 
-# print([o.name for o in list(iso3166.countries)])
-# print(is_country("South Korea"))
-
-# print(sanitize_input_city_country("Istanbul", "Turkey"))
-# # print(is_country("United Kingdom"))
-# # print(sanitize_input_city_country("8, Grange Knowe, Springfield, Linlithgow,  West Lothian", "Scotland"))
-# # # print(sanitize_input_city_country("Tokyo", "Japan"))
-# #
-# #
-# # # countries_for_language returns a list of tuples now, might be changed to an OrderedDict
-# countries = [x[1] for x in list(countries_for_language('en'))]
-# print(countries)
-#
-# # print(get_lat_lng_from_city("Osaka", "Japan"))
-# print(sanitize_input_city_country("Molino IV, Bacoor", "Cavite"))
