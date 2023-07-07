@@ -22,6 +22,7 @@ def run_discord_bot():
 
         if datasetID == "":
             await ctx.respond(f"Error. Could not find datasetID for this server.")
+            return
 
         await ctx.respond(f"You can view the map at: https://maxmap-252b2.web.app?{datasetID}")
 
