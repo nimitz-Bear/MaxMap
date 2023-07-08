@@ -10,7 +10,6 @@ import Server
 import Utils
 
 import databaseFunctions as db
-import keep_alive
 
 
 def run_discord_bot():
@@ -115,12 +114,12 @@ def run_discord_bot():
     @bot.event
     async def on_guild_remove(guild):
         print(f"LOGGING: Left guild: {guild.id}")
-        Server.on_leave(guild.id)
+        Server.nuke(guild.id)
 
     @bot.event
     async def on_application_command_error(ctx, error):
         print(f"LOGGING: Error occurred at {datetime.datetime.utcnow()} UTC: ", str(error))
         await ctx.respond(f"An unexpected error occured")
 
-    keep_alive.keep_alive()
+    # keep_alive.keep_alive()
     bot.run(os.getenv("DISCORD_TOKEN"))

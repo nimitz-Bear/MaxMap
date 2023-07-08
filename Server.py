@@ -9,7 +9,7 @@ def on_join(guild):
     db.insert_server(guild.id, datasetID)
 
 
-def on_leave(guildID: str):
+def nuke(guildID: str):
     # find the dataset for the guild
     datasetID = db.get_datasetID(guildID)
     print(datasetID)

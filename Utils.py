@@ -1,3 +1,4 @@
+import json
 import string
 
 from country_list import countries_for_language
@@ -15,10 +16,19 @@ def remove_non_ascii(unicode_string: str):
     return ''.join(filter(lambda x: x in string.printable, unicode_string))
 
 
+def country_code_to_name(a_country_code: str):
+    # check if a_str is a country code
+    country_codes = dict(countries_for_language('en'))
+    for x in country_codes:
+        if a_country_code.upper() == x.upper():
+            return country_codes[x]
+
+    return ""  # if a country code could not be found
+
+
 def is_country(a_str: str):
     # check common country names
     country_names = [x[1] for x in list(countries_for_language('en'))]
-
     for x in country_names:
         if a_str == x:
             return True
@@ -26,6 +36,7 @@ def is_country(a_str: str):
     # check ISO3166 country names (used by mapbox)
     # i.e. Türkyie, United Kingdom of Great Britain and Northern Ireland
     iso_names = [o.name for o in list(iso3166.countries)]
+    # print(iso_names)
     for x in iso_names:
         if a_str == x:
             return True
@@ -49,7 +60,7 @@ def get_lat_lng_from_city(city: str, country: str):
 
 # used to convert a user-inputted location, country to mapbox place and ISO 3166 country
 # for example, "8, Grange Knowe, Springfield, Linlithgow,  West Lothian", "Scotland" -> Linlithgow, United Kingdom.
-def sanitize_input_city_country(city: str, country: str):
+def find_city_and_country(city: str, country: str):
     # forward geocoding on url with a city, country input
     # language set to English to avoid results in other languages, for example Köln, Germany
     # limit set to 1, since only the first result is used
@@ -58,11 +69,17 @@ def sanitize_input_city_country(city: str, country: str):
 
     data = response.json()
     print(data)
-    # print(data['features'][0]['context'])
 
     # if there are no features, the input is invalid
     if not data['features']:
         return "", ""
+
+    # use the context to get the country code
+    context = data['features'][0]['context']
+
+    # last element in context is the country
+    short_code = context[len(context) - 1]['short_code']
+    country = country_code_to_name(short_code)
 
     # get the place_name (i.e. municipality, city, country) from the input string
     # for example, Nottingham, Nottinghamshire, England, United Kingdom
@@ -71,39 +88,27 @@ def sanitize_input_city_country(city: str, country: str):
 
     # split the place name by comma
     csv_place_name = place_name.split(",")
-    print(csv_place_name)
+    # print(csv_place_name)
 
     # the first value can either be a place or the country (usually place)
     city = remove_non_ascii(str(csv_place_name[0]))
-
-    # the last value can be the place or country (usually country)
-    # remove non-ascii characters (i.e. Japanese) and remove leading/trailing whitespace
-    country = remove_non_ascii(csv_place_name[len(csv_place_name) - 1]).strip()
-
-    # edge cases for county names like Türkyie
-    original_country = (csv_place_name[len(csv_place_name) - 1]).strip()
-
-    print(country)
-    # swap if output is Japan, Osaka (instead of Osaka, Japan)
-    if not is_country(country) and not is_country(original_country):
-        temp = city
-        city = country
-        country = temp
 
     return city, country
 
 
 # TODO: for auto-suggest, get the country from the context maybe?
 def auto_suggest_city_and_country(city: str, country: str):
-    mapboxCity, mapboxCountry = sanitize_input_city_country(city, country)
-    print(country)
-    print(city)
+    """
 
-    print(mapboxCity, ",", mapboxCountry)
+    :param city: user input city/town/municipality
+    :param country: user input city
+    :return: is_matching, suggested_city, suggested_country
+    """
+    mapboxCity, mapboxCountry = find_city_and_country(city, country)
 
     # if mapboxCity, mapboxCoutnry are both empty, then the user input is invalid
     if mapboxCity == "" and mapboxCountry == "":
-        return True, "",""
+        return True, "", ""
 
     if city == mapboxCity and country == mapboxCountry:
         # return false for Hong Kong, Hong Kong is an exact match, indicating auto-suggest isn't needed
@@ -116,24 +121,7 @@ def auto_suggest_city_and_country(city: str, country: str):
         return True, mapboxCity, mapboxCountry
 
 
-# return locationID based on city, country
-# returns none, if city, country is not present in DB yet
-# NOTE: only returns the first
-def get_locationID(city: str, country: str):
-    database = db.make_db_connection()
-    cursor = database.cursor()
-
-    cursor.execute(f"SELECT locationID FROM Locations WHERE Country='{country}' AND City='{city}';")
-    # print(f"test: {cursor.fetchall()}")
-    output = cursor.fetchall()
-
-    if len(output) == 0 or output is None:
-        return None
-
-    # only return the first value you find, however, location shouldn't have duplicates
-    print(f"test: {output[0]}")
-    return output[0][0]
-
 load_dotenv("secrets.env")
-print(auto_suggest_city_and_country("Llanfairpwllgwyngyll", "United Kingdom"))
+# print(country_code_to_name("dE"))
 
+print(auto_suggest_city_and_country("Putian", "China"))
