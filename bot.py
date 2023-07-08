@@ -10,6 +10,7 @@ import Server
 import Utils
 
 import databaseFunctions as db
+import keep_alive
 
 
 def run_discord_bot():
@@ -32,12 +33,12 @@ def run_discord_bot():
     async def addcity(ctx, city: str, country: str):
         if city is None or country is None:
             await ctx.respond(ephemeral=True, embed=Embeds.error(
-                text=f"Missing arguments. Correct usage is `/add-city city country`, for example /add-city Nottingham UK"))
+                text=f"Missing arguments. Correct usage is `/add-city city country`, for example /add-city Nottingham United Kingdom"))
             return
 
         if not Utils.is_country(country):
             await ctx.respond(ephemeral=True, embed=Embeds.error(
-                text=f"{country} is not a valid input for the country field. Please enter a valid country"))
+                text=f"{country} is not a valid input for the country field. Please enter a valid ISO 3166 country name"))
             return
 
         # defer response to give time for api calls and DB queries
@@ -76,11 +77,11 @@ def run_discord_bot():
         if city is None or country is None:
             await ctx.respond(ephemeral=True, embed=Embeds.error(
                 "Missing arguments. Correct usage is `/remove-city city country`, for example "
-                "/remove-city Nottingham UK"))
+                "/remove-city Nottingham United Kingdom"))
             return
         elif not Utils.is_country(country):
             await ctx.respond(ephemeral=True, embed=Embeds.error(
-                f"{country} is not a valid input for the country field.  Please enter a valid country"))
+                f"{country} is not a valid input for the country field.  Please enter a valid ISO 3166 country"))
             return
 
         # ensure that a user can't delete a non-existent city
@@ -121,4 +122,5 @@ def run_discord_bot():
         print(f"LOGGING: Error occurred at {datetime.datetime.utcnow()} UTC: ", str(error))
         await ctx.respond(f"An unexpected error occured")
 
+    keep_alive.keep_alive()
     bot.run(os.getenv("DISCORD_TOKEN"))

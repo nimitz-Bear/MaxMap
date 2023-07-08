@@ -7,7 +7,7 @@ def help() -> Embed:
         description="Maxmap is a bot that allows you to add your city to a community map"
     )
     info.add_field(name='Add city to map',
-                   value=f'Use`/add-city` with your city and country to add your city to the map, e.g. `/add-city Nottingham UK`')
+                   value=f'Use`/add-city` with your city and country to add your city to the map, e.g. `/add-city Nottingham United Kingdom`')
     info.add_field(name='Delete city from map', value=f'Use `/remove-city` with your city and country '
                                                       f'to remove your city from the map, e.g. `/remove-city Paris France`')
     info.add_field(name='See the map', value=f"Use `/map` to see the map of your community!")

@@ -93,6 +93,7 @@ def sanitize_input_city_country(city: str, country: str):
     return city, country
 
 
+# TODO: for auto-suggest, get the country from the context maybe?
 def auto_suggest_city_and_country(city: str, country: str):
     mapboxCity, mapboxCountry = sanitize_input_city_country(city, country)
     print(country)
@@ -133,5 +134,6 @@ def get_locationID(city: str, country: str):
     print(f"test: {output[0]}")
     return output[0][0]
 
-
+load_dotenv("secrets.env")
+print(auto_suggest_city_and_country("Llanfairpwllgwyngyll", "United Kingdom"))
 

@@ -69,15 +69,14 @@
 <div id="map"></div>
 
 <script>
-    console.log(window.location)
 
     // the argument in the URL represents the mapbox dataset ID
     let datasetID = window.location.search
 
-    // remove the ? at the start of the search
-    if (!datasetID)
+    // remove the ? at the start of the search if the string is non-empty
+    if (datasetID) {
         datasetID = datasetID.slice(1)
-
+    }
 
     mapboxgl.accessToken = 'pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw';
     const map = new mapboxgl.Map({
@@ -87,13 +86,15 @@
         // style: 'mapbox://styles/nimitz-/clj6x4nea004b01pi98n3ci9l',
 
         zoom: 6,
-        center: [120.9842, 14.5995]
+         // center: [120.9842, 14.5995]
+        center: [1.1550, 52.9540]
     });
 
     // Wait until the map has finished loading.
     map.on('load', async () => {
         const Http = new XMLHttpRequest();
         const url = `https://api.mapbox.com/datasets/v1/nimitz-/${datasetID}/features?access_token=pk.eyJ1IjoibmltaXR6LSIsImEiOiJjbGoyaGZ0emEwcDU4M3NwMWZqNjd0cnVvIn0.cFrLPtrK4zKDyAu3EiwTVw`;
+            // console.log(url)
         Http.open("GET", url);
         Http.send();
 
