@@ -4,8 +4,8 @@ import mysql.connector
 from dotenv import load_dotenv
 from mysql.connector import errorcode
 
-# TODO: combine the select queries here into one select function
 
+# TODO: combine the select queries here into one select function
 # returns None if connecting throws an error
 def make_db_connection():
     try:
@@ -70,8 +70,9 @@ def delete(sqlDeleteQuery: str):
 
 # inserts a new location into the DB
 def insert_location(featureID: str, city: str, country: str, lat: float, lng: float, guildID: str):
-    return insert(f"INSERT INTO Locations (featureID, city, country, lat, lng, guildID) VALUES (%s, %s, %s, %s, %s, %s);",
-                  (featureID, city, country, lat, lng, guildID))
+    return insert(
+        f"INSERT INTO Locations (featureID, city, country, lat, lng, guildID) VALUES (%s, %s, %s, %s, %s, %s);",
+        (featureID, city, country, lat, lng, guildID))
 
 
 def delete_location(city: str, country: str, guildID: str):
@@ -127,12 +128,14 @@ def server_location_count(city: str, country: str, guildID: str):
 # add a user to the DB
 # NOTE: user may choose to have multiple entries
 def insert_user(discordUserID: str, discordUsername: str, featureID: str, guildID: str):
-    return insert(sqlInsertQuery=f"INSERT INTO Users (discordUserId, discordUsername, featureID, guildID) VALUES (%s, %s, %s, %s);",
-           values=(f"{discordUserID}", f"{discordUsername}", f"{featureID}", f"{guildID}"))
+    return insert(
+        sqlInsertQuery=f"INSERT INTO Users (discordUserId, discordUsername, featureID, guildID) VALUES (%s, %s, %s, %s);",
+        values=(f"{discordUserID}", f"{discordUsername}", f"{featureID}", f"{guildID}"))
 
 
 def delete_user(discordUserID: str, featureID: str, guildID: str):
-    return delete(f"DELETE FROM Users WHERE discordUserID = '{discordUserID}' AND featureID = '{featureID}' AND guildID ='{guildID}';")
+    return delete(
+        f"DELETE FROM Users WHERE discordUserID = '{discordUserID}' AND featureID = '{featureID}' AND guildID ='{guildID}';")
 
 
 def get_user_list_at_feature(featureID: str):
@@ -153,7 +156,7 @@ def get_user_list_at_feature(featureID: str):
 
 # store a server's associated dataset in the table
 def insert_server(guildID: str, datasetID: str):
-    return insert(f"INSERT INTO Servers (guildID, datasetID) VALUES (%s, %s);", (guildID, datasetID) )
+    return insert(f"INSERT INTO Servers (guildID, datasetID) VALUES (%s, %s);", (guildID, datasetID))
 
 
 # remove a server's configuration from the table
@@ -194,7 +197,8 @@ def is_duplicate(ctx, featureID: str):
     cursor = database.cursor()
 
     try:
-        cursor.execute("SELECT * FROM Users WHERE guildID=%s AND discordUserID=%s AND featureID=%s LIMIT 1;", (guildID, userID, featureID))
+        cursor.execute("SELECT * FROM Users WHERE guildID=%s AND discordUserID=%s AND featureID=%s LIMIT 1;",
+                       (guildID, userID, featureID))
         results = cursor.fetchall()
         if len(results) > 0:
             return True
@@ -203,7 +207,6 @@ def is_duplicate(ctx, featureID: str):
     except Exception as e:
         print(e)
         return False
-
 
 # load_dotenv("secrets.env")
 # print(user_entry_exists("1120260208866885692", "223747505597317120", "f095f5b6-9b59-42a1-ba28-1a1dc4c3bb62"))

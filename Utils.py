@@ -1,11 +1,9 @@
-import json
 import string
 
 from country_list import countries_for_language
 import iso3166
 import requests
 
-import databaseFunctions as db
 import os
 from dotenv import load_dotenv
 
@@ -16,14 +14,19 @@ def remove_non_ascii(unicode_string: str):
     return ''.join(filter(lambda x: x in string.printable, unicode_string))
 
 
-def country_code_to_name(a_country_code: str):
-    # check if a_str is a country code
+def country_name_to_code(a_country: str):
     country_codes = dict(countries_for_language('en'))
-    for x in country_codes:
-        if a_country_code.upper() == x.upper():
-            return country_codes[x]
+    # switch the keys and the values
+    inv_map = {v: k for k, v in country_codes.items()}
+    print(inv_map)
 
-    return ""  # if a country code could not be found
+    # iterate over the country names and find the code
+    for x in inv_map:
+        if x == a_country:
+            return inv_map[x]
+
+    # country name could not be found
+    return ""
 
 
 def is_country(a_str: str):
@@ -35,11 +38,11 @@ def is_country(a_str: str):
 
     # check ISO3166 country names (used by mapbox)
     # i.e. Türkyie, United Kingdom of Great Britain and Northern Ireland
-    iso_names = [o.name for o in list(iso3166.countries)]
-    # print(iso_names)
-    for x in iso_names:
-        if a_str == x:
-            return True
+    # iso_names = [o.name for o in list(iso3166.countries)]
+    # # print(iso_names)
+    # for x in iso_names:
+    #     if a_str == x:
+    #         return True
 
     return False
 
@@ -60,26 +63,26 @@ def get_lat_lng_from_city(city: str, country: str):
 
 # used to convert a user-inputted location, country to mapbox place and ISO 3166 country
 # for example, "8, Grange Knowe, Springfield, Linlithgow,  West Lothian", "Scotland" -> Linlithgow, United Kingdom.
-def find_city_and_country(city: str, country: str):
+def find_matching_city(city: str, country: str):
+    country_code = country_name_to_code(country)
     # forward geocoding on url with a city, country input
     # language set to English to avoid results in other languages, for example Köln, Germany
     # limit set to 1, since only the first result is used
-    url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/{city}%20{country}.json?language=en&types=place&limit=1&access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
+    print("s"+country_code)
+    url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/{city}.json?country={country_code}&language=en&types=place&types=locality&limit=1&access_token={os.getenv('MAPBOX_SECRET_TOKEN')}"
+    print(url)
     response = requests.get(url)
 
     data = response.json()
     print(data)
 
+    # if features isn't in the json, then there was an API error
+    if 'features' not in data:
+        return ""
+
     # if there are no features, the input is invalid
     if not data['features']:
-        return "", ""
-
-    # use the context to get the country code
-    context = data['features'][0]['context']
-
-    # last element in context is the country
-    short_code = context[len(context) - 1]['short_code']
-    country = country_code_to_name(short_code)
+        return ""
 
     # get the place_name (i.e. municipality, city, country) from the input string
     # for example, Nottingham, Nottinghamshire, England, United Kingdom
@@ -93,35 +96,37 @@ def find_city_and_country(city: str, country: str):
     # the first value can either be a place or the country (usually place)
     city = remove_non_ascii(str(csv_place_name[0]))
 
-    return city, country
+    return city
 
 
 # TODO: for auto-suggest, get the country from the context maybe?
-def auto_suggest_city_and_country(city: str, country: str):
+def fuzzy_search_city(city: str, country: str):
     """
 
     :param city: user input city/town/municipality
     :param country: user input city
-    :return: is_matching, suggested_city, suggested_country
+    :return: is_exact_Match,suggested_city, suggested_country
     """
-    mapboxCity, mapboxCountry = find_city_and_country(city, country)
+    suggested_city = find_matching_city(city, country)
 
-    # if mapboxCity, mapboxCoutnry are both empty, then the user input is invalid
-    if mapboxCity == "" and mapboxCountry == "":
-        return True, "", ""
+    # if both are both empty, then the user input is invalid
+    if suggested_city == "":
+        return False, ""
 
-    if city == mapboxCity and country == mapboxCountry:
+    if city == suggested_city:
         # return false for Hong Kong, Hong Kong is an exact match, indicating auto-suggest isn't needed
-        return False, city, country
-    elif city == mapboxCity and is_country(country):
-        # return False, if city is valid and country is valid (according to countries api)
-        return False, city, country
+        return True, city
     else:
         # True, when they don't match
-        return True, mapboxCity, mapboxCountry
+        return False, suggested_city
 
+#
+# load_dotenv("secrets.env")
+# find_city_and_country("Koln", "DE")
 
-load_dotenv("secrets.env")
-# print(country_code_to_name("dE"))
+# print(list(iso3166.countries))
+# print(countries_for_language("en"))
+# # print(country_code_to_name("Albania"))
+# print(country_name_to_code("Turkey"))
+# print(fuzzy_search_city("London", "Canada"))
 
-print(auto_suggest_city_and_country("Putian", "China"))
