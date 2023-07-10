@@ -1,12 +1,12 @@
 import datetime
 
 import discord
-from discord import option
+from discord import option, commands
 import os
 
 import Embeds
 import Location
-import Server
+import Guild
 import Utils
 
 import databaseFunctions as db
@@ -51,15 +51,14 @@ def run_discord_bot():
             return
 
         # auto-suggest response if Mapbox doesn't recognize city, country
-        not_recognized, rec_city, rec_country = Utils.auto_suggest_city_and_country(city, country)
-        if rec_city == "" and rec_country == "":
+        is_exact_match, rec_city = Utils.fuzzy_search_city(city, country)
+        if rec_city == "":
             await ctx.respond(embed=Embeds.error(
-                f"Invalid input {city}, {country}. Mapbox wasn't able to find a matching "
-                              f"city/town/village/municipality"))
+                f"Error: Couldn't find {city}, {country}"))
             return
-        elif not_recognized:
+        elif not is_exact_match:
             await ctx.respond(embed=Embeds.error(
-                f"Mapbox did not recognize input. Perhaps you mean {rec_city}, {rec_country}"))
+                f"I can't recognize the input. Perhaps you mean {rec_city}, {country}"))
             return
 
         # if location doesn't exist for a server, make a new location and add it to dataset, DB
@@ -109,12 +108,12 @@ def run_discord_bot():
         print(f"LOGGING: creating a new dataset for joining: {guild.name}, {guild.id}")
 
         # create a new dataset for each server the bot joins and save datasetID to Servers table
-        Server.on_join(guild)
+        Guild.on_join(guild)
 
     @bot.event
     async def on_guild_remove(guild):
         print(f"LOGGING: Left guild: {guild.id}")
-        Server.nuke(guild.id)
+        Guild.nuke(guild.id)
 
     @bot.event
     async def on_application_command_error(ctx, error):
