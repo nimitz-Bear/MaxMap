@@ -1,7 +1,7 @@
 # MaxMap
 
 ---
-**Maxmap** is a bot that allows discord users  to create an interactive map of server member's cities.
+**Maxmap** is a bot who's main feature is that it allows discord server members to share their cities on an interactive map.
 You can use [this invite link](https://discord.com/api/oauth2/authorize?client_id=1120211992947478588&permissions=397284730944&scope=bot) 
 to add it to your discord server. 
 
@@ -9,8 +9,6 @@ to add it to your discord server.
 Example map
 
 This version was created using PyCord, the [Mapbox](https://www.mapbox.com) Datasets API and MySQL. 
-This project also uses [PositionStack](https://positionstack.com/documentation) to convert coordinates a location string and vice-versa.
-
 
 ## Commands
 
@@ -31,5 +29,8 @@ so that it knows which dataset to show.
 - `remove-city` removes your userid, city and country from the database
 
 ## Credits
-Credits to [Joe Sieniwaski](https://github.com/jozefws) for creating much of the initial codebase. 
+Credits to [Joe Sieniwaski](https://github.com/jozefws) for the first version and concept, on which this is based.
 You can see the original version [here](https://github.com/jozefws/MaxMap).
+
+## Privacy Notice
+Please note that by entering your city into this bot you are sharing your city with others, and conset to this.
