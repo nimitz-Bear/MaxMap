@@ -66,7 +66,7 @@ def get_lat_lng_from_city(city: str, country: str):
 
     lat = coords[0]
     lng = coords[1]
-    return True, lat, lng
+    return True, lng, lat
     
 
 
