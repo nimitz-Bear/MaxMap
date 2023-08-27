@@ -1,7 +1,6 @@
 import string
 
 from country_list import countries_for_language
-import iso3166
 import requests
 
 import os
@@ -36,29 +35,40 @@ def is_country(a_str: str):
         if a_str == x:
             return True
 
-    # check ISO3166 country names (used by mapbox)
-    # i.e. Türkyie, United Kingdom of Great Britain and Northern Ireland
-    # iso_names = [o.name for o in list(iso3166.countries)]
-    # # print(iso_names)
-    # for x in iso_names:
-    #     if a_str == x:
-    #         return True
-
     return False
 
 
 # returns false as the first argument, if it can't find locations
 def get_lat_lng_from_city(city: str, country: str):
-    url = "http://api.positionstack.com/v1/forward?" + "access_key=" + os.getenv("POSITIONSTACK_KEY") + \
-          "&query=" + city + " " + country + "&limit=1"
+    city = replaceSpaces(city)
+    country = replaceSpaces(country)
+
+    url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/{city}%20{country}.json?access_token={os.getenv('MAPBOX_SECRET_TOKEN')}&limit=1"
+    print(url)
+
     response = requests.get(url)
-    print(response.text)
     data = response.json()
-    print(f"input city: {city}, {country} is at {data['data'][0]['latitude']}, {data['data'][0]['longitude']} ")
-    if data['data'] == []:
-        return False, 0.0, 0.0
-    else:
-        return True, data['data'][0]["latitude"], data['data'][0]["longitude"]
+    print(data)
+
+    # erorr checking to ensure json has the right fields
+    if not 'features' in data:
+        print(f"ERROR: json is missing [features] field when geocoding")
+        raise ValueError('Mapbox api failed', response.text)
+
+       
+    if not "center" in data['features'][0].keys():
+        print(f"ERROR: json is missing [center] field when geocoding")
+        raise ValueError('Mapbox api failed', response.text)
+        
+    
+    print(data['features'][0]["center"])
+    coords = data['features'][0]["center"]
+
+    lat = coords[0]
+    lng = coords[1]
+    return True, lng, lat
+    
+
 
 
 # used to convert a user-inputted location, country to mapbox place and ISO 3166 country
@@ -119,14 +129,13 @@ def fuzzy_search_city(city: str, country: str):
     else:
         # True, when they don't match
         return False, suggested_city
-
-#
-# load_dotenv("secrets.env")
-# find_city_and_country("Koln", "DE")
-
-# print(list(iso3166.countries))
-# print(countries_for_language("en"))
-# # print(country_code_to_name("Albania"))
-# print(country_name_to_code("Turkey"))
-# print(fuzzy_search_city("London", "Canada"))
+    
+# replaces all the spaces in the input string with %20 to make it URL-compatible
+def replaceSpaces(input):
+    rep = "%20"
+    for i in range(len(input)):
+        if(input[i] == ' '):
+            input = input.replace(input[i],rep)
+    # print(input)
+    return input
 

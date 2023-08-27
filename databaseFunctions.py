@@ -8,6 +8,7 @@ from mysql.connector import errorcode
 # TODO: combine the select queries here into one select function
 # returns None if connecting throws an error
 def make_db_connection():
+
     try:
         cnx = mysql.connector.connect(user=os.getenv('DB_USERNAME'), password=os.getenv('DB_PASSWORD'),
                                       host="localhost",

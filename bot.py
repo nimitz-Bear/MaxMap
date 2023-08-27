@@ -13,6 +13,7 @@ import databaseFunctions as db
 
 
 def run_discord_bot():
+
     bot = discord.Bot()
 
     @bot.command(name="map", brief="shows map", description="Shows the map of the community")
