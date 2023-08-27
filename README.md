@@ -1,7 +1,7 @@
 # MaxMap
 
 ---
-**Maxmap** is a bot that allows discord users to create an interactive map of server member's cities.
+**Maxmap** is a bot that allows discord users y
 You can use [this invite link](https://discord.com/api/oauth2/authorize?client_id=1120211992947478588&permissions=397284730944&scope=bot) 
 to add it to your discord server. 
 
