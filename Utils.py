@@ -66,7 +66,7 @@ def get_lat_lng_from_city(city: str, country: str):
 
     lat = coords[0]
     lng = coords[1]
-    return lat, lng
+    return True, lat, lng
     
 
 
@@ -139,16 +139,3 @@ def replaceSpaces(input):
     # print(input)
     return input
 
-#
-# load_dotenv("secrets.env")
-# find_city_and_country("Koln", "DE")
-
-print([x[1] for x in list(countries_for_language('en'))])
-# print(countries_for_language("en"))
-# # print(country_code_to_name("Albania"))
-# print(country_name_to_code("Turkey"))
-# print(fuzzy_search_city("London", "Canada"))
-
-
-# load_dotenv("secrets.env")
-# get_lat_lng_from_city("Norwich", "United Kingdom")

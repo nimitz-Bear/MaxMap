@@ -122,4 +122,4 @@ def run_discord_bot():
         await ctx.respond(f"An unexpected error occured")
 
     # keep_alive.keep_alive()
-    bot.run(os.getenv("DISCORD_TOKEN"))
+    bot.run(os.getenv("DISCORD_TEST_TOKEN"))

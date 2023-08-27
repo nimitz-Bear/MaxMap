@@ -1,3 +1,4 @@
 /__pycache__
 constants.js
 *.env
+*.out
